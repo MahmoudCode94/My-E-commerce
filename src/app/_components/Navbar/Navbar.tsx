@@ -33,8 +33,8 @@ export default function Navbar() {
                                         after:content-[""] after:absolute after:left-0 after:bottom-0 
                                         after:bg-white after:transition-all after:duration-300
                                         ${isActive 
-                                            ? 'after:w-full after:h-[2px]' 
-                                            : 'after:w-0 after:h-[2px] hover:after:w-full hover:after:h-[2.5px]'
+                                            ? 'after:w-full after:h-0.5' 
+                                            : 'after:w-0 after:h-0.5 hover:after:w-full hover:after:h-[2.5px]'
                                         }`}
                                 >
                                     {link.name}

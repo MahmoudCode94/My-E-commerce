@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className="relative flex flex-col justify-between group overflow-hidden transition-all duration-300 hover:shadow-2xl border-transparent hover:border-slate-200 min-h-[480px] bg-white">
+    <Card className="relative flex flex-col justify-between group overflow-hidden transition-all duration-300 hover:shadow-2xl border-transparent hover:border-slate-200 min-h-120 bg-white">
       <Link href={`/products/${product.id}`}>
         <CardHeader className="p-3 space-y-2">
           <div className="relative w-full h-52 overflow-hidden rounded-md bg-transparent">
