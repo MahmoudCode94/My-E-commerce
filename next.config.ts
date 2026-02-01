@@ -3,12 +3,12 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'ecommerce.routemisr.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "ecommerce.routemisr.com",
+        pathname: "/**",
       },
     ],
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

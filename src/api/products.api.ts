@@ -9,17 +9,38 @@ export interface Product {
 }
 
 export async function getProducts(): Promise<Product[]> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     try {
-        const response = await fetch('https://ecommerce.routemisr.com/api/v1/products');
+        const response = await fetch('https://ecommerce.routemisr.com/api/v1/products', {
+            method: 'GET',
+            next: { 
+                revalidate: 60,
+                tags: ['products-list'] 
+            },
+        });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
-            throw new Error('Failed to fetch products');
+            throw new Error(`HTTP Error: ${response.status}`);
         }
 
         const res = await response.json();
         return res.data || [];
-    } catch (error) {
-        console.error("Fetch error:", error);
-        return [];
+
+    } catch (error: unknown) {
+        clearTimeout(timeoutId);
+
+        if (error instanceof Error && error.name === 'AbortError') {
+            throw new Error("Request Timeout: السيرفر تأخر في الرد");
+        }
+
+        if (error instanceof Error) {
+            throw error;
+        }
+
+        throw new Error("حدث خطأ غير متوقع");
     }
 }
