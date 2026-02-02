@@ -1,3 +1,17 @@
+export interface SubCategory {
+    _id: string;
+    name: string;
+    category: string;
+    slug: string;
+}
+
+export interface CategoryInProduct {
+    _id: string;
+    name: string;
+    slug: string;
+    image: string;
+}
+
 export interface Product {
     _id: string;
     id: string;
@@ -6,6 +20,8 @@ export interface Product {
     description: string;
     price: number;
     ratingsAverage: number;
+    category: CategoryInProduct;
+    subcategory: SubCategory[];
 }
 
 export async function getProducts(): Promise<Product[]> {
@@ -42,5 +58,21 @@ export async function getProducts(): Promise<Product[]> {
         }
 
         throw new Error("حدث خطأ غير متوقع");
+    }
+}
+
+export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
+    try {
+        const response = await fetch(
+            `https://ecommerce.routemisr.com/api/v1/products?category[in]=${categoryId}`, 
+            {
+                next: { revalidate: 60 }
+            }
+        );
+        const res = await response.json();
+        return res.data || [];
+    } catch (error) {
+        console.error(error);
+        return [];
     }
 }
