@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CreditCard, Banknote, MapPin, CheckCircle2, Loader2 } from "lucide-react";
+import { X, CreditCard, Banknote, MapPin, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { getAllAddresses, addAddress } from "@/api/address.api";
+import emailjs from "@emailjs/browser";
 
+// --- Interfaces ---
 interface Address {
   _id: string;
   name: string;
@@ -22,6 +24,20 @@ interface ShippingAddress {
   name?: string;
 }
 
+interface OrderData {
+  _id: string;
+  totalOrderPrice: number;
+  user: {
+    name: string;
+    email: string;
+  };
+  shippingAddress: {
+    city: string;
+    details: string;
+    phone: string;
+  };
+}
+
 interface Props {
   cartId: string;
   isOpen: boolean;
@@ -35,6 +51,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [useExisting, setUseExisting] = useState<boolean>(true);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     details: "",
@@ -58,7 +75,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
             }
           }
         } catch (error) {
-          console.error("Failed to load addresses", error);
+          console.error("Failed to fetch addresses:", error);
         } finally {
           setFetchingAddresses(false);
         }
@@ -66,6 +83,28 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       loadData();
     }
   }, [isOpen]);
+
+  const sendConfirmationEmail = async (userEmail: string, orderDetails: OrderData) => {
+    try {
+      const serviceId = "service_fapxnmc";
+      const templateId = "template_36164mb";
+      const publicKey = "VhImGrpDfzKP7GPNQ";
+
+const templateParams = {
+  user_email: userEmail,
+  customer_name: orderDetails.user.name,
+  order_id: orderDetails._id,
+  total_price: orderDetails.totalOrderPrice,
+  address_details: `${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.details}`,
+  phone: orderDetails.shippingAddress.phone,
+};
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      console.log("Email sent successfully");
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+    }
+  };
 
   async function prepareAddress(): Promise<ShippingAddress | null> {
     if (useExisting) {
@@ -77,14 +116,11 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
         city: selected.city,
       };
     } else {
-      if (!shippingAddress.city || !shippingAddress.phone || !shippingAddress.details) {
-        toast.error("Please fill in all shipping details");
+      if (!shippingAddress.city || !shippingAddress.phone || !shippingAddress.details || !email) {
+        toast.error("Please fill in all details including email");
         return null;
       }
-      const saveRes = await addAddress(shippingAddress);
-      if (saveRes.status === "success") {
-        toast.success("New address saved to your profile");
-      }
+      await addAddress(shippingAddress);
       return {
         details: shippingAddress.details,
         phone: shippingAddress.phone,
@@ -94,6 +130,11 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   }
 
   async function handleOrder(type: "cash" | "online") {
+    if (!email) {
+      toast.error("Email is required for order confirmation");
+      return;
+    }
+
     setLoading(true);
     const addressToUse = await prepareAddress();
     if (!addressToUse) {
@@ -121,11 +162,11 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
 
       if (data.status === "success") {
         if (type === "cash") {
-          toast.success("Order placed successfully!");
+          await sendConfirmationEmail(email, data.data as OrderData);
+          toast.success(`Order placed! Check ${email} for confirmation`);
           onClose();
           router.push("/allorders");
         } else {
-          toast.success("Redirecting to Stripe...");
           window.location.href = data.session.url;
         }
       } else {
@@ -156,13 +197,29 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className="relative w-full max-w-lg p-8 bg-white shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto"
           >
-            <button onClick={onClose} className="absolute p-2 rounded-full top-6 right-6 hover:bg-slate-100 text-slate-400">
+            <button onClick={onClose} className="absolute p-2 transition-colors rounded-full top-6 right-6 hover:bg-slate-100 text-slate-400">
               <X size={20} />
             </button>
+            
             <h2 className="mb-6 text-2xl font-black text-slate-800">Checkout</h2>
+
+            <div className="mb-6 space-y-3 text-left">
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                <Mail size={16} className="text-emerald-600" /> Confirmation Email
+              </label>
+              <input 
+                type="email"
+                required
+                placeholder="name@example.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-4 transition-all border outline-none bg-slate-50 border-slate-100 rounded-2xl focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
 
             <div className="flex gap-2 p-1 mb-6 bg-slate-100 rounded-2xl">
               <button
+                type="button"
                 onClick={() => setUseExisting(true)}
                 disabled={addresses.length === 0}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${useExisting ? "bg-white shadow-sm text-emerald-600" : "text-slate-500 disabled:opacity-50"}`}
@@ -170,6 +227,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                 Saved Address
               </button>
               <button
+                type="button"
                 onClick={() => setUseExisting(false)}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${!useExisting ? "bg-white shadow-sm text-emerald-600" : "text-slate-500"}`}
               >
@@ -184,7 +242,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                 {useExisting ? (
                   <div className="space-y-3">
                     {addresses.map((addr) => (
-                      <label key={addr._id} className={`flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-emerald-500 bg-emerald-50" : "border-slate-100"}`}>
+                      <label key={addr._id} className={`flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-emerald-500 bg-emerald-50" : "border-slate-100 hover:border-slate-200"}`}>
                         <div className="flex items-center gap-3">
                           <input type="radio" className="hidden" checked={selectedAddressId === addr._id} onChange={() => setSelectedAddressId(addr._id)} />
                           <MapPin size={18} className={selectedAddressId === addr._id ? "text-emerald-600" : "text-slate-400"} />
@@ -199,19 +257,19 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                   </div>
                 ) : (
                   <div className="space-y-3 text-left">
-                    <input placeholder="Label (e.g. Home)" className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500" onChange={(e) => setShippingAddress({...shippingAddress, name: e.target.value})} />
-                    <input placeholder="City" className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500" onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})} />
-                    <input placeholder="Phone" className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500" onChange={(e) => setShippingAddress({...shippingAddress, phone: e.target.value})} />
-                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500" onChange={(e) => setShippingAddress({...shippingAddress, details: e.target.value})} />
+                    <input placeholder="Label (e.g. Home)" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, name: e.target.value})} />
+                    <input placeholder="City" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})} />
+                    <input placeholder="Phone" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, phone: e.target.value})} />
+                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, details: e.target.value})} />
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   <button disabled={loading} onClick={() => handleOrder("cash")} className="flex items-center justify-center gap-2 py-4 font-bold text-white transition-all bg-slate-800 hover:bg-slate-900 rounded-2xl disabled:bg-slate-300">
-                    <Banknote size={18} /> {loading ? "..." : "Cash"}
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : <><Banknote size={18} /> Cash</>}
                   </button>
                   <button disabled={loading} onClick={() => handleOrder("online")} className="flex items-center justify-center gap-2 py-4 font-bold text-white transition-all bg-emerald-600 hover:bg-emerald-700 rounded-2xl disabled:bg-slate-300">
-                    <CreditCard size={18} /> {loading ? "..." : "Visa"}
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : <><CreditCard size={18} /> Visa</>}
                   </button>
                 </div>
               </div>
