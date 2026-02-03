@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X } from "lucide-react";
+import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserCart } from "@/api/cart.api";
 import { jwtDecode } from "jwt-decode";
@@ -186,10 +186,11 @@ export default function Navbar() {
                           <p className="text-xs font-medium text-slate-400">Account</p>
                           <p className="text-sm font-bold truncate text-slate-800">{userName}</p>
                         </div>
-                        <Link href="/allorders" className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><Package size={18} className="text-emerald-600" /> My Orders</Link>
-                        <Link href="/update-profile" className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><UserCircle size={18} className="text-blue-600" /> Update Profile</Link>
-                        <Link href="/reset-password" className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><KeyRound size={18} className="text-orange-600" /> Reset Password</Link>
-                        <div className="h-[1px] bg-slate-100 my-2 mx-2" />
+                        <Link href="/allorders" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><Package size={18} className="text-emerald-600" /> My Orders</Link>
+                        <Link href="/addresses" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><MapPin size={18} className="text-emerald-600" /> My Addresses</Link>
+                        <Link href="/update-profile" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><UserCircle size={18} className="text-blue-600" /> Update Profile</Link>
+                        <Link href="/reset-password" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm transition-colors text-slate-600 hover:bg-slate-50 rounded-xl"><KeyRound size={18} className="text-orange-600" /> Reset Password</Link>
+                        <div className="h-px mx-2 my-2 bg-slate-100" />
                         <button onClick={handleLogout} className="flex items-center w-full gap-3 px-4 py-3 text-sm text-red-500 transition-colors hover:bg-red-50 rounded-xl"><LogOut size={18} /> Logout</button>
                       </motion.div>
                     </>
@@ -211,7 +212,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="fixed top-0 left-0 right-0 bottom-0 z-[9998] h-screen w-screen bg-slate-900/40 backdrop-blur-md lg:hidden" 
+              className="fixed top-0 bottom-0 left-0 right-0 w-screen h-screen z-9998 bg-slate-900/40 backdrop-blur-md lg:hidden" 
             />
 
             <motion.div 
@@ -219,7 +220,7 @@ export default function Navbar() {
               animate={{ x: 0 }} 
               exit={{ x: "-100%" }} 
               transition={{ type: "spring", damping: 25, stiffness: 200 }} 
-              className="fixed top-0 left-0 bottom-0 z-[9999] h-screen w-[280px] bg-white shadow-2xl flex flex-col lg:hidden"
+              className="fixed top-0 bottom-0 left-0 flex flex-col h-screen bg-white shadow-2xl z-9999 w-70 lg:hidden"
             >
               <div className="flex items-center justify-between p-6 border-b border-slate-50">
                 <span className="text-xl font-black text-emerald-600">MENU</span>
