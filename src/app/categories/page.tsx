@@ -56,7 +56,6 @@ export default function Categories() {
 
   return (
     <section className="min-h-screen bg-slate-50 py-12 px-6 md:px-20">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 flex items-center gap-4">
@@ -94,7 +93,7 @@ export default function Categories() {
                   className="object-cover transition-transform duration-1000 group-hover:scale-110"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
                 <div className="absolute inset-0 p-8 flex flex-col justify-end">
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">

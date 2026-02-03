@@ -32,6 +32,7 @@ export default function LoginPage() {
         const data = await loginUser(values);
         if (data.message === 'success') {
           localStorage.setItem('userToken', data.token);
+          window.dispatchEvent(new Event("userLogin"));
           router.push('/'); 
         } else {
           setApiError(data.message);

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Product } from '@/api/products.api';
 import Link from "next/link";
-import { addToWishlist } from '@/api/wishlist.api';
+import { addToWishlist, removeFromWishlist, getWishlist } from '@/api/wishlist.api';
 import toast from 'react-hot-toast';
-import { Loader2, ShoppingCart } from 'lucide-react'; 
+import { Loader2, ShoppingCart } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -15,11 +15,28 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isWishlisting, setIsWishlisting] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false); // State لزرار الكارت
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   const productId = product.id || product._id;
 
-  // دالة إضافة المنتج للعربة
+  useEffect(() => {
+    async function checkWishlistStatus() {
+      const token = localStorage.getItem("userToken");
+      if (!token) return;
+      try {
+        const data = await getWishlist();
+        if (data.status === "success") {
+          const found = data.data.some((item: any) => item._id === productId);
+          setIsInWishlist(found);
+        }
+      } catch (error) {
+        console.error("Wishlist check failed");
+      }
+    }
+    checkWishlistStatus();
+  }, [productId]);
+
   async function handleAddToCart() {
     const token = localStorage.getItem("userToken");
     if (!token) {
@@ -42,7 +59,6 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       if (data.status === "success") {
         toast.success(data.message || "Added to cart successfully! 🛒");
-        // تنبيه للناف بار عشان يغير الرقم فوراً
         window.dispatchEvent(new Event("cartUpdated"));
       } else {
         toast.error(data.message || "Failed to add to cart");
@@ -54,19 +70,32 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   }
 
-  // دالة إضافة المنتج للويش ليست
-  async function handleWishlist() {
-    setIsWishlisting(true); 
+  async function handleWishlistToggle() {
+    const token = localStorage.getItem("userToken");
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
+    setIsWishlisting(true);
     try {
-      const data = await addToWishlist(productId);
-      if (data.status === "success") {
-        toast.success("Item added to wishlist! ❤️");
-        window.dispatchEvent(new Event("wishlistUpdated"));
+      if (isInWishlist) {
+        const data = await removeFromWishlist(productId);
+        if (data.status === "success") {
+          setIsInWishlist(false);
+          toast.success("Removed from wishlist");
+          window.dispatchEvent(new Event("wishlistUpdated"));
+        }
       } else {
-        toast.error(data.message || "Failed to add to wishlist");
+        const data = await addToWishlist(productId);
+        if (data.status === "success") {
+          setIsInWishlist(true);
+          toast.success("Added to wishlist! ❤️");
+          window.dispatchEvent(new Event("wishlistUpdated"));
+        }
       }
     } catch (error) {
-      toast.error("Please login first to use wishlist");
+      toast.error("Action failed");
     } finally {
       setIsWishlisting(false);
     }
@@ -119,14 +148,21 @@ export default function ProductCard({ product }: ProductCardProps) {
         </button>
 
         <button
-          onClick={handleWishlist}
+          onClick={handleWishlistToggle}
           disabled={isWishlisting}
           className="p-2.5 transition-all rounded-xl shadow-sm border border-slate-100 bg-white hover:bg-slate-50 group/heart hover:scale-105 disabled:opacity-50"
         >
           {isWishlisting ? (
             <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 transition-colors text-slate-400 group-hover/heart:text-red-500 group-hover/heart:fill-red-500">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill={isInWishlist ? "currentColor" : "none"} 
+              viewBox="0 0 24 24" 
+              strokeWidth="1.5" 
+              stroke="currentColor" 
+              className={`w-5 h-5 transition-colors ${isInWishlist ? "text-red-500" : "text-slate-400 group-hover/heart:text-red-500"}`}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
             </svg>
           )}

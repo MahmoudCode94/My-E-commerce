@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation"; // الخطوة 1: استيراد usePathname
 import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserCart } from "@/api/cart.api";
 import { jwtDecode } from "jwt-decode";
 
 export default function Navbar() {
+  const pathname = usePathname(); // الخطوة 2: الحصول على المسار الحالي
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -30,8 +32,9 @@ export default function Navbar() {
       setUserName(decoded.name || "User");
 
       const cartData = await getUserCart();
-      if (cartData.status === "success") {
-        setCartCount(cartData.numOfCartItems || 0);
+      if (cartData?.status === "success") {
+        const totalItems = cartData.data.products.reduce((acc: number, item: any) => acc + item.count, 0);
+        setCartCount(totalItems);
       }
 
       const res = await fetch("https://ecommerce.routemisr.com/api/v1/wishlist", {
@@ -63,55 +66,65 @@ export default function Navbar() {
     window.location.href = "/login";
   };
 
-  const navLinks = ["Home", "Products", "Categories", "Brands"];
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Products", path: "/products" },
+    { name: "Categories", path: "/categories" },
+    { name: "Brands", path: "/brands" },
+  ];
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/90 backdrop-blur-xl">
       <div className="flex items-center justify-between h-20 px-4 mx-auto md:px-6 max-w-7xl">
-        
-        {/* Left Side: Mobile Menu Toggle & Logo */}
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 transition-all lg:hidden text-slate-600 hover:bg-slate-50 rounded-xl"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          
+
           <Link href="/" className="text-xl font-black tracking-tighter md:text-2xl text-emerald-600">
             FRESH<span className="text-slate-900">CART</span>
           </Link>
         </div>
 
-        {/* Center: Desktop Links (Hidden on Mobile) */}
+        {/* Desktop Links with Active State */}
         <div className="items-center hidden gap-8 lg:flex">
-          {navLinks.map((item) => (
-            <Link key={item} href={item === "Home" ? "/" : `/${item.toLowerCase()}`} className="text-sm font-bold transition-colors text-slate-500 hover:text-emerald-600">
-              {item}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = pathname === link.path;
+            return (
+              <Link
+                key={link.name}
+                href={link.path}
+                className={`text-sm font-bold transition-colors ${
+                  isActive ? "text-emerald-600" : "text-slate-500 hover:text-emerald-600"
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Right Side: Icons (Always Visible) */}
         <div className="flex items-center gap-1 md:gap-3">
           {isLoggedIn ? (
             <>
-              <Link href="/wishlist" className="relative p-2 md:p-2.5 text-slate-600 hover:bg-slate-50 rounded-full transition-all">
+              <Link href="/wishlist" className={`relative p-2 md:p-2.5 rounded-full transition-all ${pathname === '/wishlist' ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}>
                 <Heart size={22} />
                 <AnimatePresence>
                   {wishlistCount > 0 && (
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-white">
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute top-0.5 left-0.5 flex h-4 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-white">
                       {wishlistCount}
                     </motion.span>
                   )}
                 </AnimatePresence>
               </Link>
-
-              <Link href="/cart" className="relative p-2 md:p-2.5 text-slate-600 hover:bg-slate-50 rounded-full transition-all">
+              <Link href="/cart" className={`relative p-2 md:p-2.5 rounded-full transition-all ${pathname === '/cart' ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}>
                 <ShoppingCart size={22} />
                 <AnimatePresence>
                   {cartCount > 0 && (
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-sm border-2 border-white">
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute top-0.5 left-0.5 flex h-4 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-sm border-2 border-white">
                       {cartCount}
                     </motion.span>
                   )}
@@ -152,39 +165,34 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile Drawer with Active State */}
       <AnimatePresence>
-{isMobileMenuOpen && (
+        {isMobileMenuOpen && (
           <>
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden" // الـ Overlay يفضل غامق شوية عشان يبرز المنيو
-            />
-            <motion.div 
-              initial={{ x: "-100%" }} 
-              animate={{ x: 0 }} 
-              exit={{ x: "-100%" }} 
-              transition={{ type: "spring", damping: 25, stiffness: 200 }} 
-              className="fixed top-0 left-0 z-50 h-full w-[280px] bg-white shadow-2xl lg:hidden p-6" // bg-white هنا لون أبيض صريح
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden" />
+            <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed top-0 left-0 z-50 h-full p-6 bg-white shadow-2xl w-[280px] lg:hidden" >
               <div className="flex items-center justify-between mb-8">
                 <span className="text-xl font-black text-emerald-600">MENU</span>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full bg-slate-50"><X size={20} /></button>
               </div>
               <div className="flex flex-col gap-2">
-                {navLinks.map((item) => (
-                  <Link 
-                    key={item} 
-                    href={item === "Home" ? "/" : `/${item.toLowerCase()}`} 
-                    onClick={() => setIsMobileMenuOpen(false)} 
-                    className="px-4 py-4 text-lg font-bold transition-all text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-2xl"
-                  >
-                    {item}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.path;
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`px-4 py-4 text-lg font-bold transition-all rounded-2xl ${
+                        isActive 
+                        ? "bg-emerald-50 text-emerald-700" 
+                        : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
               </div>
             </motion.div>
           </>

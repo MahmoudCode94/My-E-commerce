@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getUserCart, updateProductCount, removeCartItem, clearUserCart } from "@/api/cart.api"; // تأكد من المسار
+import { getUserCart, updateProductCount, removeCartItem, clearUserCart } from "@/api/cart.api";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -28,20 +28,33 @@ export default function CartPage() {
     async function updateCount(id: string, count: number) {
         if (count < 1) return;
         setUpdatingId(id);
-        const data = await updateProductCount(id, count);
-        if (data.status === "success") {
-            setCartDetails(data.data);
-            toast.success("Quantity updated");
+        try {
+            const data = await updateProductCount(id, count);
+            if (data.status === "success") {
+                setCartDetails(data.data);
+                toast.success("Quantity updated");
+                window.dispatchEvent(new Event("cartUpdated"));
+            }
+        } catch (error) {
+            toast.error("Error updating quantity");
+        } finally {
+            setUpdatingId(null);
         }
-        setUpdatingId(null);
     }
 
     async function removeItem(id: string) {
-        const data = await removeCartItem(id);
-        if (data.status === "success") {
-            setCartDetails(data.data);
-            toast.success("Item removed");
-            window.dispatchEvent(new Event("cartUpdated"));
+        setUpdatingId(id);
+        try {
+            const data = await removeCartItem(id);
+            if (data.status === "success") {
+                setCartDetails(data.data);
+                toast.success("Item removed");
+                window.dispatchEvent(new Event("cartUpdated"));
+            }
+        } catch (error) {
+            toast.error("Failed to remove item");
+        } finally {
+            setUpdatingId(null);
         }
     }
 
@@ -85,7 +98,6 @@ export default function CartPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-                {/* قائمة المنتجات */}
                 <div className="space-y-4 lg:col-span-2">
                     {cartDetails.products.map((item: any) => (
                         <div key={item.product._id} className="flex items-center gap-4 p-4 bg-white border shadow-sm rounded-2xl border-slate-100">
@@ -117,8 +129,12 @@ export default function CartPage() {
                                             <Plus size={18} />
                                         </button>
                                     </div>
-                                    <button onClick={() => removeItem(item.product._id)} className="transition-colors text-slate-400 hover:text-red-500">
-                                        <Trash2 size={18} />
+                                    <button 
+                                        onClick={() => removeItem(item.product._id)} 
+                                        disabled={updatingId === item.product._id}
+                                        className="transition-colors text-slate-400 hover:text-red-500 disabled:opacity-50"
+                                    >
+                                        {updatingId === item.product._id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
                                     </button>
                                 </div>
                             </div>
