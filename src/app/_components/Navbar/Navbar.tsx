@@ -1,15 +1,37 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // الخطوة 1: استيراد usePathname
+import { usePathname } from "next/navigation";
 import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserCart } from "@/api/cart.api";
 import { jwtDecode } from "jwt-decode";
 
+interface DecodedToken {
+  name?: string;
+  id?: string;
+  iat?: number;
+  exp?: number;
+}
+
+interface CartProductItem {
+  count: number;
+}
+
+interface WishlistItemData {
+  _id: string;
+  id?: string;
+}
+
+interface WishlistResponse {
+  status: string;
+  count?: number;
+  data: WishlistItemData[];
+}
+
 export default function Navbar() {
-  const pathname = usePathname(); // الخطوة 2: الحصول على المسار الحالي
+  const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,8 +39,9 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userName, setUserName] = useState("");
 
-  async function updateCounts() {
-    const token = localStorage.getItem("userToken");
+  const updateCounts = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
+    
     if (!token) {
       setIsLoggedIn(false);
       setCartCount(0);
@@ -26,40 +49,48 @@ export default function Navbar() {
       setUserName("");
       return;
     }
+
     setIsLoggedIn(true);
     try {
-      const decoded: any = jwtDecode(token);
+      const decoded = jwtDecode<DecodedToken>(token);
       setUserName(decoded.name || "User");
 
       const cartData = await getUserCart();
-      if (cartData?.status === "success") {
-        const totalItems = cartData.data.products.reduce((acc: number, item: any) => acc + item.count, 0);
+      if (cartData?.status === "success" && cartData.data?.products) {
+        const totalItems = cartData.data.products.reduce((acc: number, item: CartProductItem) => acc + item.count, 0);
         setCartCount(totalItems);
       }
 
       const res = await fetch("https://ecommerce.routemisr.com/api/v1/wishlist", {
         headers: { token }
       });
-      const wishData = await res.json();
+      const wishData: WishlistResponse = await res.json();
       if (wishData.status === "success") {
-        setWishlistCount(wishData.count || wishData.data.length || 0);
+        setWishlistCount(wishData.count || wishData.data?.length || 0);
       }
     } catch (error) {
-      console.error("Fetch counts error");
+      setCartCount(0);
+      setWishlistCount(0);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    updateCounts();
+    const syncData = async () => {
+      await updateCounts();
+    };
+    
+    syncData();
+
     window.addEventListener("cartUpdated", updateCounts);
     window.addEventListener("wishlistUpdated", updateCounts);
     window.addEventListener("userLogin", updateCounts);
+
     return () => {
       window.removeEventListener("cartUpdated", updateCounts);
       window.removeEventListener("wishlistUpdated", updateCounts);
       window.removeEventListener("userLogin", updateCounts);
     };
-  }, []);
+  }, [updateCounts]);
 
   const handleLogout = () => {
     localStorage.removeItem("userToken");
@@ -89,7 +120,6 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Desktop Links with Active State */}
         <div className="items-center hidden gap-8 lg:flex">
           {navLinks.map((link) => {
             const isActive = pathname === link.path;
@@ -165,7 +195,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer with Active State */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
