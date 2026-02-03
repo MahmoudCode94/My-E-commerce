@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Product } from '@/api/products.api';
 import Link from "next/link";
-import { addToWishlist, removeFromWishlist, getWishlist } from '@/api/wishlist.api';
+import { addToWishlist, removeFromWishlist, getWishlist, WishlistItem } from '@/api/wishlist.api';
 import toast from 'react-hot-toast';
 import { Loader2, ShoppingCart } from 'lucide-react';
 
@@ -25,13 +25,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       const token = localStorage.getItem("userToken");
       if (!token) return;
       try {
-        const data = await getWishlist();
-        if (data.status === "success") {
-          const found = data.data.some((item: any) => item._id === productId);
+        const res = await getWishlist();
+        if (res.status === "success" && Array.isArray(res.data)) {
+          const found = res.data.some((item: WishlistItem) => item._id === productId || item.id === productId);
           setIsInWishlist(found);
         }
       } catch (error) {
-        console.error("Wishlist check failed");
+        console.error("Wishlist sync error");
       }
     }
     checkWishlistStatus();
@@ -64,7 +64,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         toast.error(data.message || "Failed to add to cart");
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error("Connection error");
     } finally {
       setIsAddingToCart(false);
     }
@@ -95,7 +95,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         }
       }
     } catch (error) {
-      toast.error("Action failed");
+      toast.error("Database connection lost");
     } finally {
       setIsWishlisting(false);
     }
@@ -131,7 +131,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </CardContent>
       </Link>
 
-      <div className='flex items-center gap-2 px-3 mt-4'>
+      <div className="flex items-center gap-2 px-3 mt-4">
         <button 
           onClick={handleAddToCart}
           disabled={isAddingToCart}
@@ -150,18 +150,18 @@ export default function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleWishlistToggle}
           disabled={isWishlisting}
-          className="p-2.5 transition-all rounded-xl shadow-sm border border-slate-100 bg-white hover:bg-slate-50 group/heart hover:scale-105 disabled:opacity-50"
+          className="p-2.5 transition-all rounded-xl shadow-sm border border-slate-100 bg-white hover:bg-slate-50 disabled:opacity-50"
         >
           {isWishlisting ? (
             <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
           ) : (
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              fill={isInWishlist ? "currentColor" : "none"} 
+              fill={isInWishlist ? "#ef4444" : "none"} 
               viewBox="0 0 24 24" 
               strokeWidth="1.5" 
-              stroke="currentColor" 
-              className={`w-5 h-5 transition-colors ${isInWishlist ? "text-red-500" : "text-slate-400 group-hover/heart:text-red-500"}`}
+              stroke={isInWishlist ? "#ef4444" : "currentColor"} 
+              className={`w-5 h-5 transition-all duration-300 ${isInWishlist ? "scale-110" : "text-slate-400 hover:text-red-500"}`}
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
             </svg>

@@ -1,33 +1,49 @@
 const baseUrl = 'https://ecommerce.routemisr.com/api/v1/wishlist';
 
-export async function getWishlist() {
-    const res = await fetch(baseUrl, {
-        method: 'GET',
-        headers: {
-            'token': localStorage.getItem('userToken') || ''
-        }
-    });
-    return res.json();
+export interface WishlistItem {
+  _id: string;
+  title: string;
+  price: number;
+  imageCover: string;
+  ratingsAverage: number;
+  id: string;
 }
 
-export async function addToWishlist(productId: string) {
-    const res = await fetch(baseUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'token': localStorage.getItem('userToken') || ''
-        },
-        body: JSON.stringify({ productId })
-    });
-    return res.json();
+export interface WishlistResponse {
+  status: string;
+  count?: number;
+  data: WishlistItem[];
+  message?: string;
 }
 
-export async function removeFromWishlist(productId: string) {
-    const res = await fetch(`${baseUrl}/${productId}`, {
-        method: 'DELETE',
-        headers: {
-            'token': localStorage.getItem('userToken') || ''
-        }
-    });
-    return res.json();
+const getHeaders = () => {
+  const token = typeof window !== "undefined" ? localStorage.getItem('userToken') : '';
+  return {
+    'Content-Type': 'application/json',
+    'token': token || ''
+  };
+};
+
+export const getWishlist = async (): Promise<WishlistResponse> => {
+  const res = await fetch(baseUrl, {
+    headers: getHeaders()
+  });
+  return res.json();
+};
+
+export async function addToWishlist(productId: string): Promise<WishlistResponse> {
+  const res = await fetch(baseUrl, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ productId })
+  });
+  return res.json();
+}
+
+export async function removeFromWishlist(productId: string): Promise<WishlistResponse> {
+  const res = await fetch(`${baseUrl}/${productId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return res.json();
 }

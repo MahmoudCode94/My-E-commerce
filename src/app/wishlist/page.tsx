@@ -1,44 +1,59 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getWishlist, removeFromWishlist } from '@/api/wishlist.api';
+import { getWishlist, removeFromWishlist, WishlistItem } from '@/api/wishlist.api';
 import { addProductToCart } from '@/api/cart.api';
 import { Loader2, HeartOff, ShoppingCart, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 export default function WishlistPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   async function loadWishlist() {
-    const data = await getWishlist();
-    if (data.status === 'success') {
-      setProducts(data.data);
+    try {
+      const data = await getWishlist();
+      if (data.status === 'success') {
+        setProducts(data.data);
+      }
+    } catch (error) {
+      toast.error("Failed to load wishlist");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   async function handleRemove(id: string) {
     setActionLoading(id);
-    const data = await removeFromWishlist(id);
-    if (data.status === 'success') {
-      setProducts((prev) => prev.filter((item) => item._id !== id));
-      toast.success("Removed from wishlist");
-      window.dispatchEvent(new Event("wishlistUpdated"));
+    try {
+      const data = await removeFromWishlist(id);
+      if (data.status === 'success') {
+        setProducts((prev) => prev.filter((item) => item._id !== id));
+        toast.success("Removed from wishlist");
+        window.dispatchEvent(new Event("wishlistUpdated"));
+      }
+    } catch (error) {
+      toast.error("Error removing item");
+    } finally {
+      setActionLoading(null);
     }
-    setActionLoading(null);
   }
 
   async function handleAddToCart(id: string) {
     setActionLoading(id);
-    const data = await addProductToCart(id);
-    if (data.status === "success") {
-      toast.success("Added to cart 🛒");
-      window.dispatchEvent(new Event("cartUpdated"));
+    try {
+      const data = await addProductToCart(id);
+      if (data.status === "success") {
+        toast.success("Added to cart 🛒");
+        window.dispatchEvent(new Event("cartUpdated"));
+      }
+    } catch (error) {
+      toast.error("Error adding to cart");
+    } finally {
+      setActionLoading(null);
     }
-    setActionLoading(null);
   }
 
   useEffect(() => {
