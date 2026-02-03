@@ -1,4 +1,26 @@
-export async function createCashOrder(cartId: string, shippingAddress: { details: string; phone: string; city: string }) {
+interface ShippingAddress {
+  details: string;
+  phone: string;
+  city: string;
+}
+
+interface OrderResponse {
+  status: string;
+  data: {
+    _id: string;
+    totalOrderPrice: number;
+    paymentMethodType: string;
+    isPaid: boolean;
+    isDelivered: boolean;
+    // يمكنك إضافة المزيد من الحقول إذا كنت ستحتاجها في الـ UI
+  };
+  message?: string;
+}
+
+export async function createCashOrder(
+  cartId: string, 
+  shippingAddress: ShippingAddress
+): Promise<OrderResponse> {
   const token = typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
 
   try {
@@ -11,14 +33,17 @@ export async function createCashOrder(cartId: string, shippingAddress: { details
       body: JSON.stringify({ shippingAddress }),
     });
 
-    const data = await response.json();
+    const data: OrderResponse = await response.json();
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to create order");
     }
 
     return data;
-  } catch (error: any) {
-    throw error.message || "An error occurred while processing your order";
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw error.message;
+    }
+    throw "An error occurred while processing your order";
   }
 }

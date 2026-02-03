@@ -2,10 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CreditCard, Banknote, MapPin, CheckCircle2, Loader2, Plus } from "lucide-react";
+import { X, CreditCard, Banknote, MapPin, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { getAllAddresses, addAddress } from "@/api/address.api";
+
+interface Address {
+  _id: string;
+  name: string;
+  city: string;
+  phone: string;
+  details: string;
+}
 
 interface ShippingAddress {
   details: string;
@@ -24,7 +32,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [fetchingAddresses, setFetchingAddresses] = useState<boolean>(true);
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [useExisting, setUseExisting] = useState<boolean>(true);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
 
@@ -50,7 +58,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
             }
           }
         } catch (error) {
-          console.error("Failed to load addresses");
+          console.error("Failed to load addresses", error);
         } finally {
           setFetchingAddresses(false);
         }
@@ -59,9 +67,10 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
     }
   }, [isOpen]);
 
-  async function prepareAddress() {
+  async function prepareAddress(): Promise<ShippingAddress | null> {
     if (useExisting) {
       const selected = addresses.find((addr) => addr._id === selectedAddressId);
+      if (!selected) return null;
       return {
         details: selected.details,
         phone: selected.phone,
@@ -122,8 +131,9 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       } else {
         throw new Error(data.message);
       }
-    } catch (error: any) {
-      toast.error(error.message || "Process failed");
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "Process failed";
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -132,7 +142,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-100">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

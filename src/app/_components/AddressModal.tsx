@@ -5,10 +5,18 @@ import { addAddress } from "@/api/address.api";
 import toast from "react-hot-toast";
 import { X, Loader2 } from "lucide-react";
 
+interface Address {
+  _id: string;
+  name: string;
+  city: string;
+  phone: string;
+  details: string;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (updatedAddresses: any[]) => void;
+  onSuccess: (updatedAddresses: Address[]) => void;
 }
 
 export default function AddressModal({ isOpen, onClose, onSuccess }: Props) {
@@ -30,6 +38,7 @@ export default function AddressModal({ isOpen, onClose, onSuccess }: Props) {
       if (data.status === "success") {
         toast.success("Address added successfully");
         onSuccess(data.data);
+        setFormData({ name: "", city: "", phone: "", details: "" });
         onClose();
       }
     } catch (error) {
@@ -51,12 +60,14 @@ export default function AddressModal({ isOpen, onClose, onSuccess }: Props) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             required
+            value={formData.name}
             placeholder="Address Name (e.g., Home)"
             className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500"
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <input
             required
+            value={formData.city}
             placeholder="City"
             className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500"
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -64,12 +75,14 @@ export default function AddressModal({ isOpen, onClose, onSuccess }: Props) {
           <input
             required
             type="tel"
+            value={formData.phone}
             placeholder="Phone Number"
             className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500"
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           />
           <textarea
             required
+            value={formData.details}
             placeholder="Address Details (Street, Building...)"
             className="w-full p-4 outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500"
             rows={3}
@@ -78,9 +91,9 @@ export default function AddressModal({ isOpen, onClose, onSuccess }: Props) {
           
           <button
             disabled={loading}
-            className="w-full py-4 font-bold text-white transition-all bg-emerald-600 rounded-2xl hover:bg-emerald-700 disabled:bg-slate-300"
+            className="flex items-center justify-center w-full py-4 font-bold text-white transition-all bg-emerald-600 rounded-2xl hover:bg-emerald-700 disabled:bg-slate-300"
           >
-            {loading ? <Loader2 className="mx-auto animate-spin" /> : "Save Address"}
+            {loading ? <Loader2 className="animate-spin" /> : "Save Address"}
           </button>
         </form>
       </div>
