@@ -65,7 +65,7 @@ export async function getSpecificCategory(id: string): Promise<Category> {
     } catch (error: unknown) {
         clearTimeout(timeoutId);
         if (error instanceof Error && error.name === 'AbortError') {
-            throw new Error("Request Timeout: السيرفر تأخر في الرد");
+            throw new Error("Request Timeout");
         }
         throw error;
     }

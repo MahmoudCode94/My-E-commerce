@@ -75,17 +75,25 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const syncData = async () => {
-      await updateCounts();
+    let isMounted = true;
+
+    const fetchData = async () => {
+      if (isMounted) {
+        await updateCounts();
+      }
     };
-    
-    syncData();
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 3000);
 
     window.addEventListener("cartUpdated", updateCounts);
     window.addEventListener("wishlistUpdated", updateCounts);
     window.addEventListener("userLogin", updateCounts);
 
     return () => {
+      isMounted = false;
+      clearInterval(interval);
       window.removeEventListener("cartUpdated", updateCounts);
       window.removeEventListener("wishlistUpdated", updateCounts);
       window.removeEventListener("userLogin", updateCounts);
@@ -198,13 +206,32 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden" />
-            <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed top-0 left-0 z-50 h-full p-6 bg-white shadow-2xl w-[280px] lg:hidden" >
-              <div className="flex items-center justify-between mb-8">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              className="fixed top-0 left-0 right-0 bottom-0 z-[9998] h-screen w-screen bg-slate-900/40 backdrop-blur-md lg:hidden" 
+            />
+
+            <motion.div 
+              initial={{ x: "-100%" }} 
+              animate={{ x: 0 }} 
+              exit={{ x: "-100%" }} 
+              transition={{ type: "spring", damping: 25, stiffness: 200 }} 
+              className="fixed top-0 left-0 bottom-0 z-[9999] h-screen w-[280px] bg-white shadow-2xl flex flex-col lg:hidden"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-50">
                 <span className="text-xl font-black text-emerald-600">MENU</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full bg-slate-50"><X size={20} /></button>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className="p-2 transition-colors rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500"
+                >
+                  <X size={20} />
+                </button>
               </div>
-              <div className="flex flex-col gap-2">
+
+              <div className="flex flex-col gap-1 p-4 overflow-y-auto">
                 {navLinks.map((link) => {
                   const isActive = pathname === link.path;
                   return (
@@ -212,10 +239,10 @@ export default function Navbar() {
                       key={link.name}
                       href={link.path}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`px-4 py-4 text-lg font-bold transition-all rounded-2xl ${
+                      className={`px-4 py-4 text-base font-bold transition-all rounded-xl flex items-center ${
                         isActive 
-                        ? "bg-emerald-50 text-emerald-700" 
-                        : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                          ? "bg-emerald-50 text-emerald-700" 
+                          : "text-slate-600 hover:bg-slate-50 hover:text-emerald-600"
                       }`}
                     >
                       {link.name}

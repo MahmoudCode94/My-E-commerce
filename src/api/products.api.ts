@@ -50,7 +50,7 @@ export async function getProducts(): Promise<Product[]> {
         clearTimeout(timeoutId);
 
         if (error instanceof Error && error.name === 'AbortError') {
-            throw new Error("Request Timeout: السيرفر تأخر في الرد");
+            throw new Error("Request Timeout");
         }
 
         if (error instanceof Error) {

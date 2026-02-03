@@ -34,7 +34,7 @@ export async function getBrands(): Promise<Brand[]> {
 }
 export async function getSpecificBrand(id: string): Promise<Brand> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
         const response = await fetch(`https://ecommerce.routemisr.com/api/v1/brands/${id}`, {

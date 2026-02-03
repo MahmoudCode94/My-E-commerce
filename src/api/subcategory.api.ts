@@ -32,7 +32,7 @@ export async function getSubCategories(): Promise<SubCategory[]> {
         clearTimeout(timeoutId);
 
         if (error instanceof Error && error.name === 'AbortError') {
-            throw new Error("Request Timeout: السيرفر تأخر في الرد على طلب التصنيفات الفرعية");
+            throw new Error("Request Timeout");
         }
 
         console.error("Error fetching subcategories:", error);
