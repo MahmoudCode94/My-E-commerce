@@ -170,7 +170,7 @@ export default function Navbar() {
               </Link>
 
               <div className="relative ml-1 md:ml-2">
-                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 p-1 pl-2 transition-all border rounded-full md:pl-3 border-slate-100 hover:shadow-md bg-slate-50/50">
+                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 p-1.5 transition-all border rounded-full md:pl-3 border-slate-100 hover:shadow-md bg-slate-50/50">
                   <ChevronDown size={14} className={`text-slate-400 hidden md:block transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
                   <div className="flex items-center justify-center w-8 h-8 overflow-hidden font-bold border-2 border-white rounded-full shadow-sm md:w-9 md:h-9 bg-emerald-100 text-emerald-700">
                     <User size={18} />
