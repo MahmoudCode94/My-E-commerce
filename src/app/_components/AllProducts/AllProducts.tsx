@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, RefreshCw, Search } from "lucide-react";
 import { getProducts, Product } from "@/api/products.api";
@@ -12,26 +12,36 @@ export default function AllProducts() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       const data = await getProducts();
-      setProducts(data);
+      
+      // التأكد إن الداتا مصفوفة عشان م يحصلش Crash في الـ filter والـ map
+      if (Array.isArray(data)) {
+        setProducts(data);
+      } else {
+        throw new Error("Invalid data format received from server");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "حدث خطأ غير متوقع");
+      console.error("Fetch Error:", err);
+      setError("The server is currently unavailable (Error 500). Please try again in a few moments.");
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
-  const filteredProducts = products.filter((product) =>
-    product?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // استخدام useMemo لتحسين الأداء عند البحث
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      product?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
 
   if (isLoading) {
     return (
@@ -49,19 +59,20 @@ export default function AllProducts() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="flex items-center justify-center min-h-[60vh] px-6">
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-6 text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center max-w-md p-10 text-center bg-white shadow-xl rounded-[2.5rem] border border-slate-100"
         >
-          <div className="p-5 text-red-500 rounded-full bg-red-50">
+          <div className="p-5 mb-4 text-red-500 rounded-full bg-red-50">
             <AlertCircle size={40} />
           </div>
-          <p className="font-medium text-slate-600">{error}</p>
+          <h3 className="mb-2 text-xl font-bold text-slate-900">Connection Issue</h3>
+          <p className="mb-8 leading-relaxed text-slate-500">{error}</p>
           <button
             onClick={loadData}
-            className="flex items-center gap-2 px-6 py-3 text-white transition-all shadow-lg rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 shadow-slate-200"
+            className="flex items-center gap-2 px-8 py-4 font-bold text-white transition-all shadow-lg rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-95 shadow-slate-200"
           >
             <RefreshCw size={18} />
             Try again
@@ -73,7 +84,6 @@ export default function AllProducts() {
 
   return (
     <div className="px-6 py-10 md:px-20">
-      {/* Search Bar */}
       <div className="flex justify-center mb-12">
         <div className="relative w-full max-w-xl group">
           <input
@@ -85,6 +95,7 @@ export default function AllProducts() {
           <Search className="absolute transition-colors -translate-y-1/2 left-5 top-1/2 text-slate-400 group-focus-within:text-emerald-500" size={22} />
         </div>
       </div>
+
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <AnimatePresence mode="popLayout">
@@ -95,7 +106,7 @@ export default function AllProducts() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4, delay: index * 0.03 }}
+                transition={{ duration: 0.4, delay: index * 0.02 }}
               >
                 <ProductCard product={product} />
               </motion.div>

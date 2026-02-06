@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
+
 const baseUrl = 'https://ecommerce.routemisr.com/api/v1/wishlist';
 
 export interface WishlistItem {
@@ -17,33 +19,68 @@ export interface WishlistResponse {
 }
 
 const getHeaders = () => {
-  const token = typeof window !== "undefined" ? localStorage.getItem('userToken') : '';
+  const token = Cookies.get('userToken');
+  if (!token) return null;
   return {
     'Content-Type': 'application/json',
-    'token': token || ''
+    'token': token
   };
 };
 
 export const getWishlist = async (): Promise<WishlistResponse> => {
-  const res = await fetch(baseUrl, {
-    headers: getHeaders()
-  });
-  return res.json();
+  try {
+    const headers = getHeaders();
+    if (!headers) return { status: "error", data: [], message: "No token found" };
+
+    const res = await fetch(baseUrl, { 
+      headers,
+      cache: 'no-store' 
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch wishlist");
+    
+    return data;
+  } catch (error) {
+    return { status: "error", data: [] };
+  }
 };
 
 export async function addToWishlist(productId: string): Promise<WishlistResponse> {
-  const res = await fetch(baseUrl, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ productId })
-  });
-  return res.json();
+  try {
+    const headers = getHeaders();
+    if (!headers) throw new Error("Authentication required");
+
+    const res = await fetch(baseUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ productId: productId })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to add product");
+    
+    return data;
+  } catch (error: any) {
+    return { status: "error", data: [], message: error.message };
+  }
 }
 
 export async function removeFromWishlist(productId: string): Promise<WishlistResponse> {
-  const res = await fetch(`${baseUrl}/${productId}`, {
-    method: 'DELETE',
-    headers: getHeaders()
-  });
-  return res.json();
+  try {
+    const headers = getHeaders();
+    if (!headers) throw new Error("Authentication required");
+
+    const res = await fetch(`${baseUrl}/${productId}`, {
+      method: 'DELETE',
+      headers
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to remove product");
+    
+    return data;
+  } catch (error: any) {
+    return { status: "error", data: [], message: error.message };
+  }
 }

@@ -1,4 +1,6 @@
-import { Product } from "./products.api";
+import { SubCategory } from "./products.api";
+
+const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/categories';
 
 export interface Category {
     _id: string;
@@ -7,66 +9,37 @@ export interface Category {
     image: string;
 }
 
-export async function getCategories(): Promise<Category[]> {
+async function fetchWithTimeout<T>(url: string, options: RequestInit = {}, timeout = 5000): Promise<T> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), timeout);
 
     try {
-        const response = await fetch('https://ecommerce.routemisr.com/api/v1/categories', {
-            method: 'GET',
-            next: { 
-                revalidate: 60, 
-                tags: ['categories-list'] 
-            },
-            signal: controller.signal // إضافة الـ signal للتحكم في الـ timeout
-        });
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timer);
 
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-        }
-
-        const res = await response.json();
-        return res.data || [];
-
-    } catch (error: unknown) {
-        clearTimeout(timeoutId);
-        if (error instanceof Error && error.name === 'AbortError') {
-            throw new Error("Request Timeout: السيرفر تأخر في الرد");
-        }
-        throw error;
-    }
-}
-
-export async function getSpecificCategory(id: string): Promise<Category> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-    try {
-        const response = await fetch(`https://ecommerce.routemisr.com/api/v1/categories/${id}`, {
-            method: 'GET',
-            next: { 
-                revalidate: 60,
-                tags: [`category-${id}`] 
-            },
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            throw new Error("Category not found");
-        }
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
         const res = await response.json();
         return res.data;
-
     } catch (error: unknown) {
-        clearTimeout(timeoutId);
-        if (error instanceof Error && error.name === 'AbortError') {
-            throw new Error("Request Timeout");
+        clearTimeout(timer);
+        if (error instanceof Error) {
+            if (error.name === 'AbortError') throw new Error("Request Timeout");
+            throw error;
         }
-        throw error;
+        throw new Error("An unexpected error occurred");
     }
 }
+
+export const getCategories = (): Promise<Category[]> =>
+    fetchWithTimeout<Category[]>(BASE_URL, {
+        next: { revalidate: 60, tags: ['categories-list'] }
+    }).catch(() => []);
+
+export const getSpecificCategory = (id: string): Promise<Category> =>
+    fetchWithTimeout<Category>(`${BASE_URL}/${id}`, {
+        next: { revalidate: 60, tags: [`category-${id}`] }
+    });
+export const getCategorySubCategories = (id: string): Promise<SubCategory[]> =>
+    fetchWithTimeout<SubCategory[]>(`${BASE_URL}/${id}/subcategories`)
+    .catch(() => []);

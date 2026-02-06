@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserCart } from "@/api/cart.api";
+import { getWishlist } from "@/api/wishlist.api";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 interface DecodedToken {
   name?: string;
@@ -15,23 +17,9 @@ interface DecodedToken {
   exp?: number;
 }
 
-interface CartProductItem {
-  count: number;
-}
-
-interface WishlistItemData {
-  _id: string;
-  id?: string;
-}
-
-interface WishlistResponse {
-  status: string;
-  count?: number;
-  data: WishlistItemData[];
-}
-
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,7 +28,7 @@ export default function Navbar() {
   const [userName, setUserName] = useState("");
 
   const updateCounts = useCallback(async () => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
+    const token = Cookies.get("userToken");
     
     if (!token) {
       setIsLoggedIn(false);
@@ -55,37 +43,33 @@ export default function Navbar() {
       const decoded = jwtDecode<DecodedToken>(token);
       setUserName(decoded.name || "User");
 
-      const cartData = await getUserCart();
-      if (cartData?.status === "success" && cartData.data?.products) {
-        const totalItems = cartData.data.products.reduce((acc: number, item: CartProductItem) => acc + item.count, 0);
-        setCartCount(totalItems);
+      const [cartData, wishData] = await Promise.allSettled([
+        getUserCart(),
+        getWishlist()
+      ]);
+
+      if (cartData.status === "fulfilled" && cartData.value?.status === "success") {
+        setCartCount(cartData.value.numOfCartItems || 0);
       }
 
-      const res = await fetch("https://ecommerce.routemisr.com/api/v1/wishlist", {
-        headers: { token }
-      });
-      const wishData: WishlistResponse = await res.json();
-      if (wishData.status === "success") {
-        setWishlistCount(wishData.count || wishData.data?.length || 0);
+      if (wishData.status === "fulfilled" && wishData.value?.status === "success") {
+        setWishlistCount(wishData.value.count || (wishData.value.data ? wishData.value.data.length : 0));
       }
     } catch (error) {
-      setCartCount(0);
-      setWishlistCount(0);
+      console.error("Navbar update error:", error);
     }
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
     let isMounted = true;
 
-    const fetchData = async () => {
+    const fetchInitialCounts = async () => {
       if (isMounted) {
         await updateCounts();
       }
     };
 
-    fetchData();
-
-    const interval = setInterval(fetchData, 3000);
+    fetchInitialCounts();
 
     window.addEventListener("cartUpdated", updateCounts);
     window.addEventListener("wishlistUpdated", updateCounts);
@@ -93,7 +77,6 @@ export default function Navbar() {
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
       window.removeEventListener("cartUpdated", updateCounts);
       window.removeEventListener("wishlistUpdated", updateCounts);
       window.removeEventListener("userLogin", updateCounts);
@@ -101,8 +84,12 @@ export default function Navbar() {
   }, [updateCounts]);
 
   const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    window.location.href = "/login";
+    Cookies.remove("userToken");
+    setIsLoggedIn(false);
+    setCartCount(0);
+    setWishlistCount(0);
+    router.push("/login");
+    router.refresh();
   };
 
   const navLinks = [
@@ -212,7 +199,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="fixed top-0 bottom-0 left-0 right-0 w-screen h-screen z-9998 bg-slate-900/40 backdrop-blur-md lg:hidden" 
+              className="fixed top-0 bottom-0 left-0 right-0 w-screen h-screen z-[9998] bg-slate-900/40 backdrop-blur-md lg:hidden" 
             />
 
             <motion.div 
@@ -220,7 +207,7 @@ export default function Navbar() {
               animate={{ x: 0 }} 
               exit={{ x: "-100%" }} 
               transition={{ type: "spring", damping: 25, stiffness: 200 }} 
-              className="fixed top-0 bottom-0 left-0 flex flex-col h-screen bg-white shadow-2xl z-9999 w-70 lg:hidden"
+              className="fixed top-0 bottom-0 left-0 flex flex-col h-screen bg-white shadow-2xl z-[9999] w-72 lg:hidden"
             >
               <div className="flex items-center justify-between p-6 border-b border-slate-50">
                 <span className="text-xl font-black text-emerald-600">MENU</span>

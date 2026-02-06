@@ -1,48 +1,49 @@
+import Cookies from 'js-cookie';
+
 const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/cart';
 
-export const addProductToCart = async (productId: string) => {
-    const res = await fetch(BASE_URL, {
-        method: 'POST',
+export interface CartProduct {
+    _id: string;
+    title: string;
+    imageCover: string;
+}
+
+export interface CartItem {
+    count: number;
+    price: number;
+    product: CartProduct;
+}
+
+export interface CartResponse {
+    status: string;
+    message?: string;
+    data: {
+        _id: string;
+        totalCartPrice: number;
+        products: CartItem[];
+    };
+}
+
+async function cartRequest(url: string, method: string, body?: object): Promise<CartResponse> {
+    const token = Cookies.get('userToken');
+    if (!token) throw new Error("You must be logged in");
+
+    const res = await fetch(url, {
+        method,
         headers: {
             'Content-Type': 'application/json',
-            'token': localStorage.getItem('userToken') || ''
+            'token': token 
         },
-        body: JSON.stringify({ productId })
+        body: body ? JSON.stringify(body) : undefined,
     });
-    return res.json();
-};
 
-export const getUserCart = async () => {
-    const res = await fetch(BASE_URL, {
-        headers: { 'token': localStorage.getItem('userToken') || '' }
-    });
-    return res.json();
-};
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Server Error');
+    return data as CartResponse;
+}
 
-export const updateProductCount = async (productId: string, count: number) => {
-    const res = await fetch(`${BASE_URL}/${productId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'token': localStorage.getItem('userToken') || ''
-        },
-        body: JSON.stringify({ count })
-    });
-    return res.json();
-};
-
-export const removeCartItem = async (productId: string) => {
-    const res = await fetch(`${BASE_URL}/${productId}`, {
-        method: 'DELETE',
-        headers: { 'token': localStorage.getItem('userToken') || '' }
-    });
-    return res.json();
-};
-
-export const clearUserCart = async () => {
-    const res = await fetch(BASE_URL, {
-        method: 'DELETE',
-        headers: { 'token': localStorage.getItem('userToken') || '' }
-  });
-  return res.json();
-};
+export const addProductToCart = (productId: string) => cartRequest(BASE_URL, 'POST', { productId });
+export const getUserCart = () => cartRequest(BASE_URL, 'GET');
+export const updateProductCount = (productId: string, count: number) => cartRequest(`${BASE_URL}/${productId}`, 'PUT', { count });
+export const removeCartItem = (productId: string) => cartRequest(`${BASE_URL}/${productId}`, 'DELETE');
+export const clearUserCart = () => cartRequest(BASE_URL, 'DELETE');

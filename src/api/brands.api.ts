@@ -1,3 +1,5 @@
+const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/brands';
+
 export interface Brand {
     _id: string;
     name: string;
@@ -5,51 +7,29 @@ export interface Brand {
     image: string;
 }
 
-export async function getBrands(): Promise<Brand[]> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const id = setTimeout(() => controller.abort(), timeout);
 
     try {
-        const response = await fetch('https://ecommerce.routemisr.com/api/v1/brands', {
-            method: 'GET',
-            next: { 
-                revalidate: 60, 
-                tags: ['brands-list'] 
-            },
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error("Failed to fetch brands");
-
-        const res = await response.json();
-        return res.data || [];
-
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const result = await response.json();
+        return result.data;
     } catch (error) {
-        clearTimeout(timeoutId);
-        console.error(error);
-        return [];
-    }
-}
-export async function getSpecificBrand(id: string): Promise<Brand> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`https://ecommerce.routemisr.com/api/v1/brands/${id}`, {
-            method: 'GET',
-            next: { revalidate: 60 },
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-        if (!response.ok) throw new Error("Brand not found");
-
-        const res = await response.json();
-        return res.data;
-    } catch (error) {
-        clearTimeout(timeoutId);
+        clearTimeout(id);
+        console.error("Fetch Error:", error);
         throw error;
     }
 }
+
+export const getBrands = (): Promise<Brand[]> => 
+    fetchWithTimeout(BASE_URL, {
+        next: { revalidate: 60, tags: ['brands-list'] }
+    }).catch(() => []);
+
+export const getSpecificBrand = (id: string): Promise<Brand> => 
+    fetchWithTimeout(`${BASE_URL}/${id}`, {
+        next: { revalidate: 60 }
+    });

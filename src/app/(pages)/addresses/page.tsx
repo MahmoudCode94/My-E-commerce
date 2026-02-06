@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getAllAddresses, deleteAddress } from "@/api/address.api";
-import AddressModal from "../_components/AddressModal";
+import AddressModal from "../../_components/AddressModal";
 import toast from "react-hot-toast";
 import { MapPin, Trash2, Loader2, Plus } from "lucide-react";
+import { getCookie } from "cookies-next";
 
 interface Address {
   _id: string;
@@ -14,39 +15,57 @@ interface Address {
   details: string;
 }
 
+interface APIResponse {
+  status: string;
+  data: Address[];
+  message?: string;
+}
+
 export default function AddressesPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  
+  const token = getCookie("userToken");
 
-  async function loadAddresses() {
+  const loadAddresses = useCallback(async () => {
+    if (!token) {
+        setLoading(false);
+        toast.error("Please login to see your addresses");
+        return;
+    }
+
     try {
-      const data = await getAllAddresses();
-      if (data.status === "success") {
-        setAddresses(data.data);
+      setLoading(true);
+      const res: APIResponse = await getAllAddresses(); 
+      if (res.status === "success") {
+        setAddresses(res.data);
       }
     } catch (error) {
-      toast.error("Failed to fetch addresses");
+      const message = error instanceof Error ? error.message : "Failed to fetch addresses";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
-  }
+  }, [token]);
 
   async function handleDelete(id: string) {
+    const toastId = toast.loading("Removing address...");
     try {
-      const data = await deleteAddress(id);
-      if (data.status === "success") {
-        setAddresses(data.data);
-        toast.success("Address removed");
+      const res: APIResponse = await deleteAddress(id);
+      if (res.status === "success") {
+        setAddresses(res.data);
+        toast.success("Address removed", { id: toastId });
       }
     } catch (error) {
-      toast.error("Failed to delete address");
+      const message = error instanceof Error ? error.message : "Failed to delete address";
+      toast.error(message, { id: toastId });
     }
   }
 
   useEffect(() => {
     loadAddresses();
-  }, []);
+  }, [loadAddresses]);
 
   if (loading) return (
     <div className="flex h-[60vh] items-center justify-center">
@@ -76,7 +95,7 @@ export default function AddressesPage() {
              <p className="font-bold text-slate-500">No addresses found yet.</p>
           </div>
         ) : (
-          addresses.map((addr) => (
+          addresses.map((addr: Address) => (
             <div key={addr._id} className="p-6 bg-white border border-slate-100 rounded-[2.5rem] flex justify-between items-center shadow-sm hover:shadow-md transition-all">
               <div className="flex gap-5">
                 <div className="flex items-center justify-center p-4 bg-slate-50 rounded-3xl text-emerald-600">
@@ -102,7 +121,7 @@ export default function AddressesPage() {
       <AddressModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={(updatedList) => setAddresses(updatedList)} 
+        onSuccess={(updatedList: Address[]) => setAddresses(updatedList)} 
       />
     </div>
   );

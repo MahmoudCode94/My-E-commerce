@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { loginUser } from '@/api/auth.api';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,9 +32,11 @@ export default function LoginPage() {
       try {
         const data = await loginUser(values);
         if (data.message === 'success') {
-          localStorage.setItem('userToken', data.token);
+          Cookies.set('userToken', data.token, { expires: 7, secure: true });
+          
           window.dispatchEvent(new Event("userLogin"));
-          router.push('/'); 
+          router.push('/');
+          router.refresh();
         } else {
           setApiError(data.message);
         }
@@ -58,7 +61,9 @@ export default function LoginPage() {
               placeholder="Email Address" 
               className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
             />
-            {formik.touched.email && formik.errors.email && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.email}</p>}
+            {formik.touched.email && formik.errors.email && (
+              <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.email}</p>
+            )}
           </div>
 
           <div className="relative">
@@ -75,10 +80,11 @@ export default function LoginPage() {
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-            {formik.touched.password && formik.errors.password && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.password}</p>}
+            {formik.touched.password && formik.errors.password && (
+              <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.password}</p>
+            )}
           </div>
 
-          {/* Forgot Password Link */}
           <div className="flex justify-end mt-[-10px]">
             <Link 
               href="/forgot-password" 
@@ -88,7 +94,11 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {apiError && <p className="p-3 text-sm font-bold text-center text-red-600 border border-red-100 rounded-md bg-red-50">{apiError}</p>}
+          {apiError && (
+            <p className="p-3 text-sm font-bold text-center text-red-600 border border-red-100 rounded-md bg-red-50">
+              {apiError}
+            </p>
+          )}
 
           <button 
             disabled={isLoading} 

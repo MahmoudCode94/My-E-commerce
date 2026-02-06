@@ -1,28 +1,44 @@
+import { getCookie } from "cookies-next";
+
 const BASE_URL = "https://ecommerce.routemisr.com/api/v1/addresses";
 
-const getHeaders = () => ({
-  "Content-Type": "application/json",
-  token: localStorage.getItem("userToken") || "",
-});
+const getHeaders = () => {
+  const token = getCookie("userToken");
+  
+  return {
+    "Content-Type": "application/json",
+    "token": (token as string) || "",
+  };
+};
 
-export async function getAllAddresses() {
-  const res = await fetch(BASE_URL, { headers: getHeaders() });
-  return await res.json();
+async function handleRequest(url: string, options: RequestInit) {
+  const res = await fetch(url, options);
+  const data = await res.json();
+  
+  if (res.status === 401) {
+    console.error("Unauthorized: Token might be invalid or expired");
+  }
+
+  if (!res.ok) throw new Error(data.message || "Request failed");
+  return data;
 }
 
-export async function addAddress(formData: object) {
-  const res = await fetch(BASE_URL, {
+export const getAllAddresses = () => 
+  handleRequest(BASE_URL, { 
+    method: "GET",
+    headers: getHeaders(),
+    cache: 'no-store'
+  });
+
+export const addAddress = (formData: object) =>
+  handleRequest(BASE_URL, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(formData),
   });
-  return await res.json();
-}
 
-export async function deleteAddress(id: string) {
-  const res = await fetch(`${BASE_URL}/${id}`, {
+export const deleteAddress = (id: string) =>
+  handleRequest(`${BASE_URL}/${id}`, {
     method: "DELETE",
     headers: getHeaders(),
   });
-  return await res.json();
-}

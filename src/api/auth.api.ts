@@ -1,109 +1,81 @@
-const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/auth';
+import { getCookie } from "cookies-next";
 
-export interface RegisterValues {
+const BASE_URL = 'https://ecommerce.routemisr.com/api/v1';
+
+export interface RegisterValues { name: string; email: string; password: string; rePassword: string; phone: string; }
+export interface LoginValues { email: string; password: string; }
+export interface ChangePasswordValues { currentPassword?: string; password?: string; rePassword?: string; }
+export interface UpdateUserValues { name?: string; email?: string; phone?: string; }
+
+export interface AuthResponse {
+  message: string;
+  status?: string;
+  statusMsg?: string;
+  token?: string;
+  user?: {
     name: string;
     email: string;
-    password: string;
-    rePassword: string;
-    phone: string;
+    role: string;
+  };
 }
 
-export async function registerUser(userData: RegisterValues) {
-    try {
-        const response = await fetch(`${BASE_URL}/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-        });
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Auth Error:", error);
-        throw error;
+export interface ResetPasswordData {
+  email: string;
+  newPassword: string;
+}
+
+const getHeaders = (withToken = false) => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    
+    if (withToken) {
+        const token = getCookie('userToken');
+        if (token) headers['token'] = token as string;
     }
-}
+    return headers;
+};
 
-export interface LoginValues {
-    email: string;
-    password: string;
-}
-
-export async function loginUser(userData: LoginValues) {
-    try {
-        const response = await fetch('https://ecommerce.routemisr.com/api/v1/auth/signin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-        });
-        return await response.json();
-    } catch (error) {
-        throw error;
+async function apiRequest<T>(
+    endpoint: string, 
+    method: 'POST' | 'PUT' | 'GET', 
+    body?: object, 
+    withToken = false
+): Promise<T> {
+    
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method,
+        headers: getHeaders(withToken),
+        body: body ? JSON.stringify(body) : undefined,
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
     }
+    
+    return data as T;
 }
 
-export async function forgotPassword(email: string) {
-    const res = await fetch('https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-    });
-    return res.json();
-}
+export const registerUser = (userData: RegisterValues) => 
+    apiRequest<AuthResponse>('/auth/signup', 'POST', userData);
 
-export async function verifyResetCode(resetCode: string) {
-    const res = await fetch('https://ecommerce.routemisr.com/api/v1/auth/verifyResetCode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resetCode })
-    });
-    return res.json();
-}
+export const loginUser = (userData: LoginValues) => 
+    apiRequest<AuthResponse>('/auth/signin', 'POST', userData);
 
-export async function resetPassword(userData: object) {
-    const res = await fetch('https://ecommerce.routemisr.com/api/v1/auth/resetPassword', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-    });
-    return res.json();
-}
+export const forgotPassword = (email: string) => 
+    apiRequest<AuthResponse>('/auth/forgotPasswords', 'POST', { email });
 
-export async function changeUserPassword(passwords: object) {
-    const token = localStorage.getItem('userToken');
-    const res = await fetch('https://ecommerce.routemisr.com/api/v1/users/changeMyPassword', {
-        method: 'PUT',
-        headers: { 
-            'Content-Type': 'application/json',
-            'token': token || ''
-        },
-        body: JSON.stringify(passwords)
-    });
-    return res.json();
-}
+export const verifyResetCode = (resetCode: string) => 
+    apiRequest<AuthResponse>('/auth/verifyResetCode', 'POST', { resetCode });
 
-export async function updateUserData(values: object) {
-    const token = localStorage.getItem('userToken');
-    const res = await fetch('https://ecommerce.routemisr.com/api/v1/users/updateMe/', {
-        method: 'PUT',
-        headers: { 
-            'Content-Type': 'application/json',
-            'token': token || '' 
-        },
-        body: JSON.stringify(values)
-    });
-    return res.json();
-}
+export const resetPassword = (userData: ResetPasswordData) => 
+    apiRequest<AuthResponse>('/auth/resetPassword', 'PUT', userData);
 
-export async function verifyToken() {
-    const token = localStorage.getItem('userToken');
-    if (!token) return null;
+export const changeUserPassword = (passwords: ChangePasswordValues) => 
+    apiRequest<AuthResponse>('/users/changeMyPassword', 'PUT', passwords, true);
 
-    const res = await fetch('https://ecommerce.routemisr.com/api/v1/auth/verifyToken', {
-        method: 'GET',
-        headers: { 
-            'token': token 
-        }
-    });
-    return res.json();
-}
+export const updateUserData = (values: UpdateUserValues) => 
+    apiRequest<AuthResponse>('/users/updateMe/', 'PUT', values, true);
 
+export const verifyToken = () => 
+    apiRequest<AuthResponse>('/auth/verifyToken', 'GET', undefined, true);

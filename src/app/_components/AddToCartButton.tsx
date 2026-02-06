@@ -3,12 +3,15 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { ShoppingCart, Loader2 } from 'lucide-react';
+import { addProductToCart } from '@/api/cart.api';
+import Cookies from 'js-cookie'; 
 
 export default function AddToCartButton({ productId }: { productId: string }) {
     const [isLoading, setIsLoading] = useState(false);
 
     async function handleAddToCart() {
-        const token = localStorage.getItem('userToken');
+        const token = Cookies.get('userToken'); 
+        
         if (!token) {
             toast.error("Please login first to add items to your cart");
             return;
@@ -16,16 +19,7 @@ export default function AddToCartButton({ productId }: { productId: string }) {
 
         setIsLoading(true);
         try {
-            const res = await fetch('https://ecommerce.routemisr.com/api/v1/cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'token': token
-                },
-                body: JSON.stringify({ productId })
-            });
-
-            const data = await res.json();
+            const data = await addProductToCart(productId);
 
             if (data.status === "success") {
                 toast.success(data.message || "Product added to cart! 🛒");

@@ -30,14 +30,16 @@ export default function CategorySlider() {
 
     if (isLoading) return <div className="p-20 text-center text-gray-400 animate-pulse">Loading Categories...</div>;
 
+    const shouldLoop = categories.length >= 6;
+
     return (
-        <div className="px-6 md:px-20 py-10">
+        <div className="px-6 py-10 md:px-20">
             <div className="flex items-center justify-between mb-6">
-                <h2 className='text-2xl md:text-3xl font-bold text-slate-800'>
+                <h2 className='text-2xl font-bold md:text-3xl text-slate-800'>
                     Shop Popular Categories
                 </h2>
-                <div className="h-1 flex-1 mx-4 bg-slate-100 hidden sm:block rounded-full"></div>
-                <Link href="/categories" className="text-emerald-600 font-semibold hover:underline text-sm">
+                <div className="flex-1 hidden h-1 mx-4 rounded-full bg-slate-100 sm:block"></div>
+                <Link href="/categories" className="text-sm font-semibold text-emerald-600 hover:underline">
                     View All
                 </Link>
             </div>
@@ -46,8 +48,8 @@ export default function CategorySlider() {
                 modules={[Autoplay, Pagination]}
                 spaceBetween={20}
                 slidesPerView={2}
-                loop={true}
-                autoplay={{ delay: 3500, disableOnInteraction: false }}
+                loop={shouldLoop}
+                autoplay={shouldLoop ? { delay: 3500, disableOnInteraction: false } : false}
                 pagination={{ clickable: true, dynamicBullets: true }}
                 breakpoints={{
                     640: { slidesPerView: 3 },
@@ -58,8 +60,8 @@ export default function CategorySlider() {
             >
                 {categories.map((cat) => (
                     <SwiperSlide key={cat._id}>
-                        <Link href={`/categories/${cat._id}`} className="group relative flex flex-col gap-3 cursor-pointer">
-                            <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-slate-100 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:-translate-y-2">
+                        <Link href={`/categories/${cat._id}`} className="relative flex flex-col gap-3 cursor-pointer group">
+                            <div className="relative w-full h-64 overflow-hidden transition-all duration-500 border shadow-sm rounded-2xl border-slate-100 group-hover:shadow-xl group-hover:-translate-y-2">
                                 <Image
                                     src={cat.image}
                                     alt={cat.name}
@@ -67,13 +69,13 @@ export default function CategorySlider() {
                                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center p-4">
-                                    <span className="text-white text-sm font-medium bg-emerald-600 px-3 py-1 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                                <div className="absolute inset-0 flex items-end justify-center p-4 transition-opacity duration-500 opacity-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:opacity-100">
+                                    <span className="px-3 py-1 text-sm font-medium text-white transition-transform transform translate-y-4 rounded-full bg-emerald-600 group-hover:translate-y-0">
                                         View Products
                                     </span>
                                 </div>
                             </div>
-                            <h3 className="text-center font-semibold text-slate-700 group-hover:text-emerald-600 transition-colors duration-300">
+                            <h3 className="font-semibold text-center transition-colors duration-300 text-slate-700 group-hover:text-emerald-600">
                                 {cat.name}
                             </h3>
                         </Link>
