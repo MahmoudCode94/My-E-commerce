@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { getAllAddresses, addAddress } from "@/api/address.api";
 import emailjs from "@emailjs/browser";
+import Cookies from "js-cookie";
 
 // --- Interfaces ---
 interface Address {
@@ -90,14 +91,14 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       const templateId = "template_36164mb";
       const publicKey = "VhImGrpDfzKP7GPNQ";
 
-const templateParams = {
-  user_email: userEmail,
-  customer_name: orderDetails.user.name,
-  order_id: orderDetails._id,
-  total_price: orderDetails.totalOrderPrice,
-  address_details: `${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.details}`,
-  phone: orderDetails.shippingAddress.phone,
-};
+      const templateParams = {
+        user_email: userEmail,
+        customer_name: orderDetails.user.name,
+        order_id: orderDetails._id,
+        total_price: orderDetails.totalOrderPrice,
+        address_details: `${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.details}`,
+        phone: orderDetails.shippingAddress.phone,
+      };
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
       console.log("Email sent successfully");
@@ -142,9 +143,9 @@ const templateParams = {
       return;
     }
 
-    const token = localStorage.getItem("userToken");
+    const token = Cookies.get("userToken");
     const baseUrl = window.location.origin;
-    const url = type === "cash" 
+    const url = type === "cash"
       ? `https://ecommerce.routemisr.com/api/v1/orders/${cartId}`
       : `https://ecommerce.routemisr.com/api/v1/orders/checkout-session/${cartId}?url=${baseUrl}`;
 
@@ -200,17 +201,17 @@ const templateParams = {
             <button onClick={onClose} className="absolute p-2 transition-colors rounded-full top-6 right-6 hover:bg-slate-100 text-slate-400">
               <X size={20} />
             </button>
-            
+
             <h2 className="mb-6 text-2xl font-black text-slate-800">Checkout</h2>
 
             <div className="mb-6 space-y-3 text-left">
               <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
                 <Mail size={16} className="text-emerald-600" /> Confirmation Email
               </label>
-              <input 
+              <input
                 type="email"
                 required
-                placeholder="name@example.com" 
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-4 transition-all border outline-none bg-slate-50 border-slate-100 rounded-2xl focus:ring-2 focus:ring-emerald-500"
@@ -257,10 +258,10 @@ const templateParams = {
                   </div>
                 ) : (
                   <div className="space-y-3 text-left">
-                    <input placeholder="Label (e.g. Home)" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, name: e.target.value})} />
-                    <input placeholder="City" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})} />
-                    <input placeholder="Phone" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, phone: e.target.value})} />
-                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({...shippingAddress, details: e.target.value})} />
+                    <input placeholder="Label (e.g. Home)" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })} />
+                    <input placeholder="City" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })} />
+                    <input placeholder="Phone" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })} />
+                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, details: e.target.value })} />
                   </div>
                 )}
 

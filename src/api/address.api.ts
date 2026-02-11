@@ -1,20 +1,20 @@
-import { getCookie } from "cookies-next";
+import Cookies from "js-cookie";
 
 const BASE_URL = "https://ecommerce.routemisr.com/api/v1/addresses";
 
 const getHeaders = () => {
-  const token = getCookie("userToken");
-  
+  const token = Cookies.get("userToken");
+
   return {
     "Content-Type": "application/json",
-    "token": (token as string) || "",
+    "token": token || "",
   };
 };
 
 async function handleRequest(url: string, options: RequestInit) {
   const res = await fetch(url, options);
   const data = await res.json();
-  
+
   if (res.status === 401) {
     console.error("Unauthorized: Token might be invalid or expired");
   }
@@ -23,8 +23,8 @@ async function handleRequest(url: string, options: RequestInit) {
   return data;
 }
 
-export const getAllAddresses = () => 
-  handleRequest(BASE_URL, { 
+export const getAllAddresses = () =>
+  handleRequest(BASE_URL, {
     method: "GET",
     headers: getHeaders(),
     cache: 'no-store'

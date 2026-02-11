@@ -14,14 +14,17 @@ export interface CartItem {
     product: CartProduct;
 }
 
+export interface CartData {
+    _id: string;
+    totalCartPrice: number;
+    products: CartItem[];
+}
+
 export interface CartResponse {
     status: string;
     message?: string;
-    data: {
-        _id: string;
-        totalCartPrice: number;
-        products: CartItem[];
-    };
+    numOfCartItems?: number;
+    data: CartData;
 }
 
 async function cartRequest(url: string, method: string, body?: object): Promise<CartResponse> {
@@ -32,7 +35,7 @@ async function cartRequest(url: string, method: string, body?: object): Promise<
         method,
         headers: {
             'Content-Type': 'application/json',
-            'token': token 
+            'token': token
         },
         body: body ? JSON.stringify(body) : undefined,
     });

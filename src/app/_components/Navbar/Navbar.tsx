@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getUserCart } from "@/api/cart.api";
-import { getWishlist } from "@/api/wishlist.api";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
+import { useWishlist } from "@/context/WishlistContext";
+import { useCart } from "@/context/CartContext";
 
 interface DecodedToken {
   name?: string;
@@ -20,74 +20,55 @@ interface DecodedToken {
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Use Global Contexts
+  const { wishlistCount } = useWishlist();
+  const { cartCount, syncCart } = useCart();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userName, setUserName] = useState("");
 
-  const updateCounts = useCallback(async () => {
+  useEffect(() => {
+    // Basic auth check only, data syncing is handled by Contexts
     const token = Cookies.get("userToken");
-    
-    if (!token) {
+    if (token) {
+      setIsLoggedIn(true);
+      try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        setUserName(decoded.name || "User");
+        // Ensure contexts are synced on mount/login
+        syncCart();
+        // Wishlist syncs automatically on mount
+      } catch (e) {
+        console.error("Token decode error", e);
+      }
+    } else {
       setIsLoggedIn(false);
-      setCartCount(0);
-      setWishlistCount(0);
-      setUserName("");
-      return;
     }
 
-    setIsLoggedIn(true);
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-      setUserName(decoded.name || "User");
-
-      const [cartData, wishData] = await Promise.allSettled([
-        getUserCart(),
-        getWishlist()
-      ]);
-
-      if (cartData.status === "fulfilled" && cartData.value?.status === "success") {
-        setCartCount(cartData.value.numOfCartItems || 0);
-      }
-
-      if (wishData.status === "fulfilled" && wishData.value?.status === "success") {
-        setWishlistCount(wishData.value.count || (wishData.value.data ? wishData.value.data.length : 0));
-      }
-    } catch (error) {
-      console.error("Navbar update error:", error);
-    }
-  }, []);
-
-useEffect(() => {
-    let isMounted = true;
-
-    const fetchInitialCounts = async () => {
-      if (isMounted) {
-        await updateCounts();
+    const handleLogin = () => {
+      const token = Cookies.get("userToken");
+      if (token) {
+        setIsLoggedIn(true);
+        try {
+          const decoded = jwtDecode<DecodedToken>(token);
+          setUserName(decoded.name || "User");
+        } catch (e) { }
       }
     };
 
-    fetchInitialCounts();
-
-    window.addEventListener("cartUpdated", updateCounts);
-    window.addEventListener("wishlistUpdated", updateCounts);
-    window.addEventListener("userLogin", updateCounts);
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener("cartUpdated", updateCounts);
-      window.removeEventListener("wishlistUpdated", updateCounts);
-      window.removeEventListener("userLogin", updateCounts);
-    };
-  }, [updateCounts]);
+    window.addEventListener("userLogin", handleLogin);
+    return () => window.removeEventListener("userLogin", handleLogin);
+  }, [syncCart]);
 
   const handleLogout = () => {
     Cookies.remove("userToken");
     setIsLoggedIn(false);
-    setCartCount(0);
-    setWishlistCount(0);
+    // Trigger context updates to clear state if they listen to userLogin or we could expose clear methods
+    // For now contexts listen to userLogin to re-sync (which will fail and clear state)
+    window.dispatchEvent(new Event("userLogin"));
     router.push("/login");
     router.refresh();
   };
@@ -122,9 +103,8 @@ useEffect(() => {
               <Link
                 key={link.name}
                 href={link.path}
-                className={`text-sm font-bold transition-colors ${
-                  isActive ? "text-emerald-600" : "text-slate-500 hover:text-emerald-600"
-                }`}
+                className={`text-sm font-bold transition-colors ${isActive ? "text-emerald-600" : "text-slate-500 hover:text-emerald-600"
+                  }`}
               >
                 {link.name}
               </Link>
@@ -194,25 +174,25 @@ useEffect(() => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="fixed top-0 bottom-0 left-0 right-0 w-screen h-screen z-[9998] bg-slate-900/40 backdrop-blur-md lg:hidden" 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed top-0 bottom-0 left-0 right-0 w-screen h-screen z-[9998] bg-slate-900/40 backdrop-blur-md lg:hidden"
             />
 
-            <motion.div 
-              initial={{ x: "-100%" }} 
-              animate={{ x: 0 }} 
-              exit={{ x: "-100%" }} 
-              transition={{ type: "spring", damping: 25, stiffness: 200 }} 
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed top-0 bottom-0 left-0 flex flex-col h-screen bg-white shadow-2xl z-[9999] w-72 lg:hidden"
             >
               <div className="flex items-center justify-between p-6 border-b border-slate-50">
                 <span className="text-xl font-black text-emerald-600">MENU</span>
-                <button 
-                  onClick={() => setIsMobileMenuOpen(false)} 
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="p-2 transition-colors rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500"
                 >
                   <X size={20} />
@@ -227,11 +207,10 @@ useEffect(() => {
                       key={link.name}
                       href={link.path}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`px-4 py-4 text-base font-bold transition-all rounded-xl flex items-center ${
-                        isActive 
-                          ? "bg-emerald-50 text-emerald-700" 
+                      className={`px-4 py-4 text-base font-bold transition-all rounded-xl flex items-center ${isActive
+                          ? "bg-emerald-50 text-emerald-700"
                           : "text-slate-600 hover:bg-slate-50 hover:text-emerald-600"
-                      }`}
+                        }`}
                     >
                       {link.name}
                     </Link>

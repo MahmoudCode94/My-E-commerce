@@ -1,58 +1,34 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Product } from '@/api/products.api';
 import Link from "next/link";
-import { addToWishlist, removeFromWishlist, getWishlist } from '@/api/wishlist.api';
-import { addProductToCart } from '@/api/cart.api'; 
+import { useCart } from '@/context/CartContext';
 import toast from 'react-hot-toast';
 import { Loader2, ShoppingCart } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const [isWishlisting, setIsWishlisting] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  // Use Context instead of local state fetching
+  const { checkIsInWishlist, addToWishlistFn, removeFromWishlistFn } = useWishlist();
+  const { addToCartFn } = useCart();
 
   // السيرفر أحياناً يستخدم id وأحياناً _id، نضمن الحصول على القيمة الصحيحة
   const productId = product.id || (product as any)._id;
-
-  // استخدام useCallback لمنع إعادة إنشاء الدالة في كل ريندر
-  const checkWishlistStatus = useCallback(async () => {
-    const token = Cookies.get("userToken");
-    if (!token) return;
-
-    try {
-      const res = await getWishlist();
-      if (res.status === "success" && Array.isArray(res.data)) {
-        // نتحقق من وجود المنتج في مصفوفة البيانات العائدة
-        const found = res.data.some((item: any) => (item._id === productId || item.id === productId));
-        setIsInWishlist(found);
-      }
-    } catch (error) {
-      console.error("Failed to sync wishlist status for product:", productId);
-    }
-  }, [productId]);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    if (isMounted) {
-      checkWishlistStatus();
-    }
-
-    return () => { isMounted = false; };
-  }, [checkWishlistStatus]);
+  const isInWishlist = checkIsInWishlist(productId);
+  const [isWishlisting, setIsWishlisting] = useState(false); // Local loading state for wishlist button
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // Local loading state for cart button
 
   async function handleAddToCart() {
     const token = Cookies.get("userToken");
-    
+
     if (!token) {
       toast.error("Please login first to shop");
       return;
@@ -60,50 +36,23 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     setIsAddingToCart(true);
     try {
-      const data = await addProductToCart(productId);
-      if (data.status === "success") {
-        toast.success(data.message || "Added to cart successfully! 🛒");
-        window.dispatchEvent(new Event("cartUpdated"));
-      }
+      await addToCartFn(productId);
+      // Cart count updating is handled inside context
     } catch (error: any) {
-      toast.error("Failed to add to cart");
+      // Toast handled in context
     } finally {
       setIsAddingToCart(false);
     }
   }
 
   async function handleWishlistToggle() {
-    const token = Cookies.get("userToken");
-    
-    if (!token) {
-      toast.error("Please login first");
-      return;
-    }
-
-    setIsWishlisting(true);
+    setIsWishlisting(true); // Show loading spinner locally while context action finishes
     try {
       if (isInWishlist) {
-        const data = await removeFromWishlist(productId);
-        if (data.status === "success") {
-          setIsInWishlist(false);
-          toast.success("Removed from wishlist");
-          // نرسل حدثاً لتحديث العداد في الـ Navbar
-          window.dispatchEvent(new Event("wishlistUpdated"));
-        } else {
-          toast.error(data.message || "Could not remove product");
-        }
+        await removeFromWishlistFn(productId);
       } else {
-        const data = await addToWishlist(productId);
-        if (data.status === "success") {
-          setIsInWishlist(true);
-          toast.success("Added to wishlist! ❤️");
-          window.dispatchEvent(new Event("wishlistUpdated"));
-        } else {
-          toast.error(data.message || "Could not add product");
-        }
+        await addToWishlistFn(productId);
       }
-    } catch (error) {
-      toast.error("Connection error. Try again.");
     } finally {
       setIsWishlisting(false);
     }
@@ -141,7 +90,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       <div className="flex items-center gap-2 px-3 mt-4">
-        <button 
+        <button
           onClick={(e) => {
             e.preventDefault();
             handleAddToCart();
@@ -170,12 +119,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           {isWishlisting ? (
             <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
           ) : (
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill={isInWishlist ? "#ef4444" : "none"} 
-              viewBox="0 0 24 24" 
-              strokeWidth="1.5" 
-              stroke={isInWishlist ? "#ef4444" : "currentColor"} 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill={isInWishlist ? "#ef4444" : "none"}
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke={isInWishlist ? "#ef4444" : "currentColor"}
               className={`w-5 h-5 transition-all duration-300 ${isInWishlist ? "scale-110" : "text-slate-400 hover:text-red-500"}`}
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
