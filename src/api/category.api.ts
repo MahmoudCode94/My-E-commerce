@@ -1,6 +1,6 @@
 import { SubCategory } from "./products.api";
 
-const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/categories';
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/categories`;
 
 export interface Category {
     _id: string;
@@ -42,4 +42,4 @@ export const getSpecificCategory = (id: string): Promise<Category> =>
     });
 export const getCategorySubCategories = (id: string): Promise<SubCategory[]> =>
     fetchWithTimeout<SubCategory[]>(`${BASE_URL}/${id}/subcategories`)
-    .catch(() => []);
+        .catch(() => []);

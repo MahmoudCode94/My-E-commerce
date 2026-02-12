@@ -25,7 +25,7 @@ export async function createCashOrder(
   const token = getCookie("userToken");
 
   try {
-    const response = await fetch(`https://ecommerce.routemisr.com/api/v1/orders/${cartId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${cartId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

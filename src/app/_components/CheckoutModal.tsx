@@ -9,7 +9,6 @@ import { getAllAddresses, addAddress } from "@/api/address.api";
 import emailjs from "@emailjs/browser";
 import Cookies from "js-cookie";
 
-// --- Interfaces ---
 interface Address {
   _id: string;
   name: string;
@@ -45,8 +44,11 @@ interface Props {
   onClose: () => void;
 }
 
+import { useCart } from "@/context/CartContext";
+
 export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   const router = useRouter();
+  const { syncCart } = useCart();
   const [loading, setLoading] = useState<boolean>(false);
   const [fetchingAddresses, setFetchingAddresses] = useState<boolean>(true);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -164,6 +166,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       if (data.status === "success") {
         if (type === "cash") {
           await sendConfirmationEmail(email, data.data as OrderData);
+          await syncCart(); // Refresh cart state (should be empty now)
           toast.success(`Order placed! Check ${email} for confirmation`);
           onClose();
           router.push("/allorders");

@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const BASE_URL = "https://ecommerce.routemisr.com/api/v1/addresses";
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/addresses`;
 
 const getHeaders = () => {
   const token = Cookies.get("userToken");

@@ -17,6 +17,7 @@ export interface Product {
     id: string;
     title: string;
     imageCover: string;
+    images: string[];
     description: string;
     price: number;
     ratingsAverage: number;
@@ -26,7 +27,7 @@ export interface Product {
 
 export async function getProducts(): Promise<Product[]> {
     try {
-        const response = await fetch('https://ecommerce.routemisr.com/api/v1/products', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
             method: 'GET',
             cache: 'no-store',
             headers: {
@@ -42,7 +43,6 @@ export async function getProducts(): Promise<Product[]> {
         const res = await response.json();
         return res.data || [];
     } catch (error) {
-        console.error("Server Side Fetch Error:", error);
         return [];
     }
 }
@@ -50,8 +50,8 @@ export async function getProducts(): Promise<Product[]> {
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
     try {
         const response = await fetch(
-            `https://ecommerce.routemisr.com/api/v1/products?category[in]=${categoryId}`,
-            { 
+            `${process.env.NEXT_PUBLIC_BASE_URL}/products?category[in]=${categoryId}`,
+            {
                 next: { revalidate: 60 },
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,14 +62,13 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
         const res = await response.json();
         return res.data || [];
     } catch (error) {
-        console.error(error);
         return [];
     }
 }
 
 export async function getSpecificProduct(id: string): Promise<Product | null> {
     try {
-        const response = await fetch(`https://ecommerce.routemisr.com/api/v1/products/${id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`, {
             next: { revalidate: 60, tags: [`product-${id}`] }
         });
 
@@ -78,7 +77,6 @@ export async function getSpecificProduct(id: string): Promise<Product | null> {
         const res = await response.json();
         return res.data;
     } catch (error) {
-        console.error("Error fetching product details:", error);
         return null;
     }
 }

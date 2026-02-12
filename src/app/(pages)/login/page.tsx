@@ -31,17 +31,17 @@ export default function LoginPage() {
       setApiError('');
       try {
         const data = await loginUser(values);
-        if (data.message === 'success') {
+        if (data.message === 'success' && data.token) {
           Cookies.set('userToken', data.token, { expires: 7, secure: true });
-          
+
           window.dispatchEvent(new Event("userLogin"));
           router.push('/');
           router.refresh();
         } else {
           setApiError(data.message);
         }
-      } catch (err) {
-        setApiError('Authentication failed. Check your connection.');
+      } catch (err: any) {
+        setApiError(err.message || 'Authentication failed. Check your connection.');
       } finally {
         setIsLoading(false);
       }
@@ -56,10 +56,10 @@ export default function LoginPage() {
 
         <form onSubmit={formik.handleSubmit} className="space-y-4">
           <div>
-            <input 
-              {...formik.getFieldProps('email')} 
-              placeholder="Email Address" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('email')}
+              placeholder="Email Address"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
             {formik.touched.email && formik.errors.email && (
               <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.email}</p>
@@ -67,13 +67,13 @@ export default function LoginPage() {
           </div>
 
           <div className="relative">
-            <input 
-              {...formik.getFieldProps('password')} 
-              type={showPassword ? 'text' : 'password'} 
-              placeholder="Password" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('password')}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
-            <button 
+            <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-3 text-slate-400 hover:text-emerald-500"
@@ -86,8 +86,8 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end mt-[-10px]">
-            <Link 
-              href="/forgot-password" 
+            <Link
+              href="/forgot-password"
               className="text-[.7rem] font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
             >
               Forgot Password?
@@ -100,9 +100,9 @@ export default function LoginPage() {
             </p>
           )}
 
-          <button 
-            disabled={isLoading} 
-            type="submit" 
+          <button
+            disabled={isLoading}
+            type="submit"
             className="flex justify-center w-full py-3 mt-4 font-bold text-white transition-all rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300"
           >
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Login'}

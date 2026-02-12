@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/cart';
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/cart`;
 
 export interface CartProduct {
     _id: string;
@@ -50,3 +50,4 @@ export const getUserCart = () => cartRequest(BASE_URL, 'GET');
 export const updateProductCount = (productId: string, count: number) => cartRequest(`${BASE_URL}/${productId}`, 'PUT', { count });
 export const removeCartItem = (productId: string) => cartRequest(`${BASE_URL}/${productId}`, 'DELETE');
 export const clearUserCart = () => cartRequest(BASE_URL, 'DELETE');
+export const applyCoupon = (coupon: string) => cartRequest(`${BASE_URL}/applyCoupon`, 'POST', { coupon });

@@ -1,4 +1,4 @@
-const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/brands';
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/brands`;
 
 export interface Brand {
     _id: string;
@@ -24,12 +24,12 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
     }
 }
 
-export const getBrands = (): Promise<Brand[]> => 
+export const getBrands = (): Promise<Brand[]> =>
     fetchWithTimeout(BASE_URL, {
         next: { revalidate: 60, tags: ['brands-list'] }
     }).catch(() => []);
 
-export const getSpecificBrand = (id: string): Promise<Brand> => 
+export const getSpecificBrand = (id: string): Promise<Brand> =>
     fetchWithTimeout(`${BASE_URL}/${id}`, {
         next: { revalidate: 60 }
     });

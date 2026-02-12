@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 import { addProductToCart } from '@/api/cart.api';
-import Cookies from 'js-cookie'; 
+import Cookies from 'js-cookie';
 
 export default function AddToCartButton({ productId }: { productId: string }) {
     const [isLoading, setIsLoading] = useState(false);
 
     async function handleAddToCart() {
-        const token = Cookies.get('userToken'); 
-        
+        const token = Cookies.get('userToken');
+
         if (!token) {
             toast.error("Please login first to add items to your cart");
             return;
@@ -35,7 +35,7 @@ export default function AddToCartButton({ productId }: { productId: string }) {
     }
 
     return (
-        <button 
+        <button
             onClick={handleAddToCart}
             disabled={isLoading}
             className="flex items-center justify-center flex-1 gap-2 py-4 text-xs font-bold tracking-tight text-white uppercase transition-all duration-300 shadow-xl bg-slate-950 rounded-2xl hover:bg-emerald-600 active:scale-95 shadow-slate-200 disabled:opacity-70"

@@ -16,15 +16,12 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  // Use Context instead of local state fetching
   const { checkIsInWishlist, addToWishlistFn, removeFromWishlistFn } = useWishlist();
   const { addToCartFn } = useCart();
-
-  // السيرفر أحياناً يستخدم id وأحياناً _id، نضمن الحصول على القيمة الصحيحة
   const productId = product.id || (product as any)._id;
   const isInWishlist = checkIsInWishlist(productId);
-  const [isWishlisting, setIsWishlisting] = useState(false); // Local loading state for wishlist button
-  const [isAddingToCart, setIsAddingToCart] = useState(false); // Local loading state for cart button
+  const [isWishlisting, setIsWishlisting] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   async function handleAddToCart() {
     const token = Cookies.get("userToken");
@@ -37,16 +34,14 @@ export default function ProductCard({ product }: ProductCardProps) {
     setIsAddingToCart(true);
     try {
       await addToCartFn(productId);
-      // Cart count updating is handled inside context
     } catch (error: any) {
-      // Toast handled in context
     } finally {
       setIsAddingToCart(false);
     }
   }
 
   async function handleWishlistToggle() {
-    setIsWishlisting(true); // Show loading spinner locally while context action finishes
+    setIsWishlisting(true);
     try {
       if (isInWishlist) {
         await removeFromWishlistFn(productId);
@@ -96,7 +91,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             handleAddToCart();
           }}
           disabled={isAddingToCart}
-          className="flex items-center justify-center gap-2 w-full bg-slate-950 text-white py-2.5 rounded-xl transition-all duration-300 hover:bg-emerald-600 active:scale-95 shadow-sm font-bold text-xs uppercase disabled:opacity-70"
+          className="flex items-center justify-center gap-2 w-full bg-slate-950 text-white py-2.5 pt-2.5 rounded-xl transition-all duration-300 hover:bg-emerald-600 active:scale-95 shadow-sm font-bold text-xs uppercase disabled:opacity-70"
         >
           {isAddingToCart ? (
             <Loader2 className="w-4 h-4 animate-spin" />

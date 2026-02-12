@@ -1,33 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getCategories, Category } from '@/api/category.api';
 
 import 'swiper/css';
-import 'swiper/css/pagination';
 
-export default function CategorySlider() {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        async function loadCategories() {
-            try {
-                const data = await getCategories();
-                setCategories(data);
-            } catch (error) {
-                console.error("Error loading categories:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        loadCategories();
-    }, []);
-
+export default function CategorySlider({ categories, isLoading = false }: { categories: Category[], isLoading?: boolean }) {
     if (isLoading) return <div className="p-20 text-center text-gray-400 animate-pulse">Loading Categories...</div>;
 
     const shouldLoop = categories.length >= 6;
@@ -45,12 +27,11 @@ export default function CategorySlider() {
             </div>
 
             <Swiper
-                modules={[Autoplay, Pagination]}
+                modules={[Autoplay]}
                 spaceBetween={20}
                 slidesPerView={2}
                 loop={shouldLoop}
                 autoplay={shouldLoop ? { delay: 3500, disableOnInteraction: false } : false}
-                pagination={{ clickable: true, dynamicBullets: true }}
                 breakpoints={{
                     640: { slidesPerView: 3 },
                     768: { slidesPerView: 4 },

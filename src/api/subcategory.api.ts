@@ -7,11 +7,11 @@ export interface SubCategory {
 
 export async function getSubCategories(): Promise<SubCategory[]> {
     try {
-        const response = await fetch('https://ecommerce.routemisr.com/api/v1/subcategories', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/subcategories`, {
             method: 'GET',
-            next: { 
+            next: {
                 revalidate: 60,
-                tags: ['subcategories-list'] 
+                tags: ['subcategories-list']
             }
         });
 

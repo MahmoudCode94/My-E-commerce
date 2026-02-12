@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const baseUrl = 'https://ecommerce.routemisr.com/api/v1/wishlist';
+const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/wishlist`;
 
 export interface WishlistItem {
   _id: string;
@@ -32,14 +32,14 @@ export const getWishlist = async (): Promise<WishlistResponse> => {
     const headers = getHeaders();
     if (!headers) return { status: "error", data: [], message: "No token found" };
 
-    const res = await fetch(baseUrl, { 
+    const res = await fetch(baseUrl, {
       headers,
-      cache: 'no-store' 
+      cache: 'no-store'
     });
-    
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to fetch wishlist");
-    
+
     return data;
   } catch (error) {
     return { status: "error", data: [] };
@@ -59,7 +59,7 @@ export async function addToWishlist(productId: string): Promise<WishlistResponse
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to add product");
-    
+
     return data;
   } catch (error: any) {
     return { status: "error", data: [], message: error.message };
@@ -78,7 +78,7 @@ export async function removeFromWishlist(productId: string): Promise<WishlistRes
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to remove product");
-    
+
     return data;
   } catch (error: any) {
     return { status: "error", data: [], message: error.message };

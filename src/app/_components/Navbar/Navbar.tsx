@@ -2,13 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { jwtDecode } from "jwt-decode";
-import Cookies from "js-cookie";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface DecodedToken {
   name?: string;
@@ -19,58 +18,17 @@ interface DecodedToken {
 
 export default function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { isLoggedIn, userName, logout } = useAuth();
 
-  // Use Global Contexts
   const { wishlistCount } = useWishlist();
-  const { cartCount, syncCart } = useCart();
+  const { cartCount } = useCart();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [userName, setUserName] = useState("");
-
-  useEffect(() => {
-    // Basic auth check only, data syncing is handled by Contexts
-    const token = Cookies.get("userToken");
-    if (token) {
-      setIsLoggedIn(true);
-      try {
-        const decoded = jwtDecode<DecodedToken>(token);
-        setUserName(decoded.name || "User");
-        // Ensure contexts are synced on mount/login
-        syncCart();
-        // Wishlist syncs automatically on mount
-      } catch (e) {
-        console.error("Token decode error", e);
-      }
-    } else {
-      setIsLoggedIn(false);
-    }
-
-    const handleLogin = () => {
-      const token = Cookies.get("userToken");
-      if (token) {
-        setIsLoggedIn(true);
-        try {
-          const decoded = jwtDecode<DecodedToken>(token);
-          setUserName(decoded.name || "User");
-        } catch (e) { }
-      }
-    };
-
-    window.addEventListener("userLogin", handleLogin);
-    return () => window.removeEventListener("userLogin", handleLogin);
-  }, [syncCart]);
 
   const handleLogout = () => {
-    Cookies.remove("userToken");
-    setIsLoggedIn(false);
-    // Trigger context updates to clear state if they listen to userLogin or we could expose clear methods
-    // For now contexts listen to userLogin to re-sync (which will fail and clear state)
-    window.dispatchEvent(new Event("userLogin"));
-    router.push("/login");
-    router.refresh();
+    logout();
+    setIsProfileOpen(false);
   };
 
   const navLinks = [
@@ -208,8 +166,8 @@ export default function Navbar() {
                       href={link.path}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`px-4 py-4 text-base font-bold transition-all rounded-xl flex items-center ${isActive
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-emerald-600"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-emerald-600"
                         }`}
                     >
                       {link.name}

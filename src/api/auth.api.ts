@@ -1,6 +1,6 @@
-import { getCookie } from "cookies-next";
+import Cookies from "js-cookie";
 
-const BASE_URL = 'https://ecommerce.routemisr.com/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export interface RegisterValues { name: string; email: string; password: string; rePassword: string; phone: string; }
 export interface LoginValues { email: string; password: string; }
@@ -8,74 +8,74 @@ export interface ChangePasswordValues { currentPassword?: string; password?: str
 export interface UpdateUserValues { name?: string; email?: string; phone?: string; }
 
 export interface AuthResponse {
-  message: string;
-  status?: string;
-  statusMsg?: string;
-  token?: string;
-  user?: {
-    name: string;
-    email: string;
-    role: string;
-  };
+    message: string;
+    status?: string;
+    statusMsg?: string;
+    token?: string;
+    user?: {
+        name: string;
+        email: string;
+        role: string;
+    };
 }
 
 export interface ResetPasswordData {
-  email: string;
-  newPassword: string;
+    email: string;
+    newPassword: string;
 }
 
 const getHeaders = (withToken = false) => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    
+
     if (withToken) {
-        const token = getCookie('userToken');
+        const token = Cookies.get('userToken');
         if (token) headers['token'] = token as string;
     }
     return headers;
 };
 
 async function apiRequest<T>(
-    endpoint: string, 
-    method: 'POST' | 'PUT' | 'GET', 
-    body?: object, 
+    endpoint: string,
+    method: 'POST' | 'PUT' | 'GET',
+    body?: object,
     withToken = false
 ): Promise<T> {
-    
+
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method,
         headers: getHeaders(withToken),
         body: body ? JSON.stringify(body) : undefined,
     });
-    
+
     const data = await response.json();
-    
+
     if (!response.ok) {
         throw new Error(data.message || 'Something went wrong');
     }
-    
+
     return data as T;
 }
 
-export const registerUser = (userData: RegisterValues) => 
+export const registerUser = (userData: RegisterValues) =>
     apiRequest<AuthResponse>('/auth/signup', 'POST', userData);
 
-export const loginUser = (userData: LoginValues) => 
+export const loginUser = (userData: LoginValues) =>
     apiRequest<AuthResponse>('/auth/signin', 'POST', userData);
 
-export const forgotPassword = (email: string) => 
+export const forgotPassword = (email: string) =>
     apiRequest<AuthResponse>('/auth/forgotPasswords', 'POST', { email });
 
-export const verifyResetCode = (resetCode: string) => 
+export const verifyResetCode = (resetCode: string) =>
     apiRequest<AuthResponse>('/auth/verifyResetCode', 'POST', { resetCode });
 
-export const resetPassword = (userData: ResetPasswordData) => 
+export const resetPassword = (userData: ResetPasswordData) =>
     apiRequest<AuthResponse>('/auth/resetPassword', 'PUT', userData);
 
-export const changeUserPassword = (passwords: ChangePasswordValues) => 
+export const changeUserPassword = (passwords: ChangePasswordValues) =>
     apiRequest<AuthResponse>('/users/changeMyPassword', 'PUT', passwords, true);
 
-export const updateUserData = (values: UpdateUserValues) => 
-    apiRequest<AuthResponse>('/users/updateMe/', 'PUT', values, true);
+export const updateUserData = (values: UpdateUserValues) =>
+    apiRequest<AuthResponse>('/users/updateMe', 'PUT', values, true);
 
-export const verifyToken = () => 
+export const verifyToken = () =>
     apiRequest<AuthResponse>('/auth/verifyToken', 'GET', undefined, true);

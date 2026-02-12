@@ -6,18 +6,20 @@ import * as Yup from 'yup';
 import { updateUserData } from '@/api/auth.api';
 import { Loader2, UserCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function UpdateProfile() {
   const [apiError, setApiError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { userName } = useAuth();
 
   const formik = useFormik({
-    initialValues: { name: '', email: '', phone: '' },
+    initialValues: { name: userName || '', phone: '' },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       name: Yup.string().min(3, 'Too short').required('Name is required'),
-      email: Yup.string().email('Invalid email').required('Email is required'),
       phone: Yup.string().matches(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone').required('Phone is required'),
     }),
     onSubmit: async (values) => {
@@ -29,10 +31,10 @@ export default function UpdateProfile() {
           setSuccessMsg('Profile updated successfully!');
           setTimeout(() => router.push('/'), 1500);
         } else {
-          setApiError(data.errors?.msg || data.message);
+          setApiError(data.message);
         }
-      } catch (err) {
-        setApiError('Update failed. Try again.');
+      } catch (err: any) {
+        setApiError(err.message || 'Update failed. Try again.');
       } finally {
         setIsLoading(false);
       }
@@ -51,11 +53,6 @@ export default function UpdateProfile() {
           <div>
             <input {...formik.getFieldProps('name')} placeholder="New Name" className="w-full px-4 py-3 text-sm border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" />
             {formik.touched.name && formik.errors.name && <p className="mt-1 text-xs font-bold text-red-500">{formik.errors.name}</p>}
-          </div>
-
-          <div>
-            <input {...formik.getFieldProps('email')} placeholder="New Email" className="w-full px-4 py-3 text-sm border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" />
-            {formik.touched.email && formik.errors.email && <p className="mt-1 text-xs font-bold text-red-500">{formik.errors.email}</p>}
           </div>
 
           <div>

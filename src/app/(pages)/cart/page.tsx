@@ -3,16 +3,16 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Trash2, Plus, Minus, ShoppingBag, Loader2, CreditCard } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, Loader2, CreditCard, Ticket } from "lucide-react";
 import CheckoutModal from "@/app/_components/CheckoutModal";
 import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
-    const { cartData, isLoading: loading, updateCountFn, removeFromCartFn, clearCartFn } = useCart();
-
-    // Local loading state for specific items being updated ensures better UX
+    const { cartData, isLoading: loading, updateCountFn, removeFromCartFn, clearCartFn, applyCouponFn } = useCart();
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+    const [couponCode, setCouponCode] = useState<string>("");
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
 
     async function handleUpdateCount(id: string, count: number) {
         if (count < 1) return;
@@ -28,8 +28,17 @@ export default function CartPage() {
     }
 
     async function handleClearAll() {
-        // Ideally add a confirmation but for now just call fn
         await clearCartFn();
+    }
+
+    async function handleApplyCoupon() {
+        if (!couponCode.trim()) {
+            return;
+        }
+        setIsApplyingCoupon(true);
+        await applyCouponFn(couponCode);
+        setCouponCode("");
+        setIsApplyingCoupon(false);
     }
 
     if (loading) return (
@@ -106,6 +115,28 @@ export default function CartPage() {
                 <div className="lg:col-span-1">
                     <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] sticky top-24 shadow-2xl">
                         <h2 className="mb-6 text-2xl font-bold">Order Summary</h2>
+
+                        <div className="pb-6 mb-6 border-b border-slate-700">
+                            <label className="block mb-3 text-sm font-medium text-slate-400">Have a coupon?</label>
+                            <div className="flex gap-2 p-1.5 bg-slate-800 rounded-2xl border border-slate-700 focus-within:border-emerald-500 transition-colors">
+                                <input
+                                    type="text"
+                                    placeholder="Enter code"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                    className="flex-1 bg-transparent px-3 py-2 outline-none text-sm placeholder:text-slate-600"
+                                />
+                                <button
+                                    onClick={handleApplyCoupon}
+                                    disabled={isApplyingCoupon || !couponCode.trim()}
+                                    className="px-4 py-2 font-bold text-xs text-white transition-all bg-emerald-600 rounded-xl hover:bg-emerald-500 disabled:opacity-50 disabled:bg-slate-700 flex items-center gap-2"
+                                >
+                                    {isApplyingCoupon ? <Loader2 size={14} className="animate-spin" /> : <Ticket size={14} />}
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="pb-6 space-y-4 border-b border-slate-700">
                             <div className="flex justify-between text-slate-400">
                                 <span>Subtotal</span>

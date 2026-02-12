@@ -26,15 +26,19 @@ export default function ForgotPassword() {
       setApiError('');
       try {
         const data: AuthResponse = await forgotPassword(values.email);
-        
+
         if (data.statusMsg === 'success') {
-          router.push('/verify-code'); 
+          localStorage.setItem('resetEmail', values.email);
+          router.push('/verify-code');
         } else {
           setApiError(data.message || 'Something went wrong');
         }
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Network error, try again.';
         setApiError(errorMessage);
+        if (errorMessage.includes("500")) {
+          setApiError("Server error (500). Please try again later or check your internet connection.");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -47,7 +51,7 @@ export default function ForgotPassword() {
         <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-[2rem] bg-emerald-50 text-emerald-600 transition-transform hover:rotate-12">
           <ShieldCheck size={40} />
         </div>
-        
+
         <h1 className="mb-2 text-3xl font-black text-slate-900">Forgot Password?</h1>
         <p className="mb-10 leading-relaxed text-slate-500">
           No worries! Enter your email below to receive a <span className="font-bold text-emerald-600">verification code</span>.
@@ -56,14 +60,14 @@ export default function ForgotPassword() {
         <form onSubmit={formik.handleSubmit} className="space-y-6">
           <div className="text-left">
             <div className="relative">
-              <input 
-                {...formik.getFieldProps('email')} 
+              <input
+                {...formik.getFieldProps('email')}
                 type="email"
-                placeholder="Email Address" 
+                placeholder="Email Address"
                 className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 
-                  ${formik.touched.email && formik.errors.email 
-                    ? 'border-red-400 focus:border-red-500' 
-                    : 'border-slate-200 focus:border-emerald-500 focus:bg-white shadow-sm'}`} 
+                  ${formik.touched.email && formik.errors.email
+                    ? 'border-red-400 focus:border-red-500'
+                    : 'border-slate-200 focus:border-emerald-500 focus:bg-white shadow-sm'}`}
               />
             </div>
             {formik.touched.email && formik.errors.email && (
@@ -79,9 +83,9 @@ export default function ForgotPassword() {
             </div>
           )}
 
-          <button 
-            disabled={isLoading} 
-            type="submit" 
+          <button
+            disabled={isLoading}
+            type="submit"
             className="flex items-center justify-center w-full py-4 font-black text-white transition-all shadow-lg rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 shadow-emerald-200 active:scale-95"
           >
             {isLoading ? (
@@ -92,7 +96,7 @@ export default function ForgotPassword() {
           </button>
         </form>
 
-        <button 
+        <button
           onClick={() => router.back()}
           className="mt-8 text-sm font-bold transition-colors text-slate-400 hover:text-slate-600"
         >

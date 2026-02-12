@@ -50,8 +50,8 @@ export default function SignUp() {
         } else {
           setApiError(data.message);
         }
-      } catch (err) {
-        setApiError('Something went wrong. Please try again.');
+      } catch (err: any) {
+        setApiError(err.message || 'Something went wrong. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -65,31 +65,31 @@ export default function SignUp() {
 
         <form onSubmit={formik.handleSubmit} className="space-y-4">
           <div>
-            <input 
-              {...formik.getFieldProps('name')} 
-              placeholder="Full Name" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('name')}
+              placeholder="Full Name"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
             {formik.touched.name && formik.errors.name && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.name}</p>}
           </div>
 
           <div>
-            <input 
-              {...formik.getFieldProps('email')} 
-              placeholder="Email Address" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('email')}
+              placeholder="Email Address"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
             {formik.touched.email && formik.errors.email && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.email}</p>}
           </div>
 
           <div className="relative">
-            <input 
-              {...formik.getFieldProps('password')} 
-              type={showPassword ? 'text' : 'password'} 
-              placeholder="Password" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('password')}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
-            <button 
+            <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-4 text-slate-400 hover:text-emerald-500"
@@ -100,13 +100,13 @@ export default function SignUp() {
           </div>
 
           <div className="relative">
-            <input 
-              {...formik.getFieldProps('rePassword')} 
-              type={showRePassword ? 'text' : 'password'} 
-              placeholder="Confirm Password" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('rePassword')}
+              type={showRePassword ? 'text' : 'password'}
+              placeholder="Confirm Password"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
-            <button 
+            <button
               type="button"
               onClick={() => setShowRePassword(!showRePassword)}
               className="absolute right-3 top-4 text-slate-400 hover:text-emerald-500"
@@ -117,19 +117,19 @@ export default function SignUp() {
           </div>
 
           <div>
-            <input 
-              {...formik.getFieldProps('phone')} 
-              placeholder="Phone Number" 
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" 
+            <input
+              {...formik.getFieldProps('phone')}
+              placeholder="Phone Number"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
             />
             {formik.touched.phone && formik.errors.phone && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.phone}</p>}
           </div>
 
           {apiError && <p className="p-3 text-sm font-bold text-center text-red-600 border border-red-100 rounded-md bg-red-50">{apiError}</p>}
 
-          <button 
-            disabled={isLoading} 
-            type="submit" 
+          <button
+            disabled={isLoading}
+            type="submit"
             className="flex justify-center w-full py-3 mt-4 font-bold text-white transition-all rounded-lg cursor-pointer bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300"
           >
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign Up'}

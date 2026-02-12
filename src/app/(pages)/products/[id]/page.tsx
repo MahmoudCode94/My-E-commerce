@@ -7,19 +7,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from 'lucide-react';
 import AddWishlistButton from "@/app/_components/AddWishlistButton";
 import AddToCartButton from "@/app/_components/AddToCartButton";
-import { getProducts, Product } from '@/api/products.api';
+import { getSpecificProduct, Product } from '@/api/products.api';
+import Autoplay from "embla-carousel-autoplay";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+} from "@/components/ui/carousel";
 
 export default function ProductDetails() {
     const { id } = useParams();
     const [product, setProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const plugin = React.useRef(
+        Autoplay({ delay: 2000, stopOnInteraction: false })
+    );
+
     const loadProductData = useCallback(async () => {
         if (!id) return;
         try {
             setIsLoading(true);
-            const allProducts = await getProducts();
-            const foundProduct = allProducts.find((p: Product) => p.id === id || p._id === id);
+            const foundProduct = await getSpecificProduct(id as string);
             setProduct(foundProduct || null);
         } catch (error) {
             console.error(error);
@@ -45,6 +54,7 @@ export default function ProductDetails() {
     );
 
     const productId = product._id || product.id || "";
+    const productImages = product.images?.length > 0 ? product.images : [product.imageCover];
 
     return (
         <div className="flex items-center justify-center px-6 py-10 lg:px-20">
@@ -52,16 +62,33 @@ export default function ProductDetails() {
                 <CardContent className="p-0">
                     <div className="grid items-center grid-cols-1 gap-12 md:grid-cols-2">
                         <div className="flex items-center justify-center">
-                            <div className="relative flex items-center justify-center w-full max-w-[400px] rounded-[2rem] overflow-hidden bg-white shadow-sm border border-slate-50 aspect-square">
-                                <Image
-                                    src={product.imageCover}
-                                    alt={product.title}
-                                    width={350}
-                                    height={350}
-                                    className="object-contain p-4 transition-transform duration-500 hover:scale-105"
-                                    priority
-                                    unoptimized
-                                />
+                            <div className="relative w-full max-w-[500px]">
+                                <Carousel
+                                    plugins={[plugin.current]}
+                                    className="w-full group"
+                                    opts={{
+                                        align: "start",
+                                        loop: true,
+                                    }}
+                                >
+                                    <CarouselContent>
+                                        {productImages.map((img: string, index: number) => (
+                                            <CarouselItem key={index}>
+                                                <div className="relative flex items-center justify-center w-full rounded-[2rem] overflow-hidden bg-white shadow-sm border border-slate-50 aspect-square">
+                                                    <Image
+                                                        src={img}
+                                                        alt={`${product.title} - ${index + 1}`}
+                                                        width={450}
+                                                        height={450}
+                                                        className="object-contain p-4 transition-all duration-500 group-hover:scale-105"
+                                                        priority={index === 0}
+                                                        unoptimized
+                                                    />
+                                                </div>
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                </Carousel>
                             </div>
                         </div>
 

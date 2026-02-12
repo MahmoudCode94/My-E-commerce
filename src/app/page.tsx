@@ -1,16 +1,17 @@
 import React from 'react'
 import HomeSlider from './_components/HomeSlider/HomeSlider'
-import Slider from './_components/Slider/Slider'
 import AllProducts from './_components/AllProducts/AllProducts'
-
-
+import { getCategories } from '@/api/category.api'
+import CategorySlider from './_components/CategorySlider/CategorySlider'
 
 export default async function Home() {
+  const categories = await getCategories();
 
-
-  return <>
-    <HomeSlider/>
-    <Slider />
-    <AllProducts/>
-  </>
+  return (
+    <>
+      <HomeSlider />
+      <CategorySlider categories={categories} />
+      <AllProducts />
+    </>
+  )
 }

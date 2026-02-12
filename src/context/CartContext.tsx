@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getUserCart, addProductToCart, updateProductCount, removeCartItem, clearUserCart, CartData } from '@/api/cart.api';
+import { getUserCart, addProductToCart, updateProductCount, removeCartItem, clearUserCart, applyCoupon, CartData } from '@/api/cart.api';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 
@@ -13,6 +13,7 @@ interface CartContextType {
     updateCountFn: (productId: string, count: number) => Promise<void>;
     removeFromCartFn: (productId: string) => Promise<void>;
     clearCartFn: () => Promise<void>;
+    applyCouponFn: (couponName: string) => Promise<void>;
     syncCart: () => Promise<void>;
 }
 
@@ -69,9 +70,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const res = await addProductToCart(productId);
             if (res?.status === 'success') {
                 setCartCount(res.numOfCartItems || cartCount + 1);
-                // Usually add endpoint returns "message" and "numOfCartItems" and "data" (sometimes).
-                // If data is returned, update it. If not, syncCart might be needed or we just update count.
-                // The API response for Add usually contains the updated cart data.
                 if (res.data) setCartData(res.data);
                 toast.success(res.message || 'Added to cart successfully! 🛒');
             } else {
@@ -113,7 +111,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const res = await clearUserCart();
             if (res?.message === 'success') {
                 setCartCount(0);
-                setCartData({ _id: '', totalCartPrice: 0, products: [] }); // Empty cart
+                setCartData({ _id: '', totalCartPrice: 0, products: [] });
                 toast.success('Cart cleared');
             }
         } catch (error: any) {
@@ -121,8 +119,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const applyCouponFn = async (couponName: string) => {
+        try {
+            const res = await applyCoupon(couponName);
+            if (res?.status === 'success') {
+                setCartData(res.data);
+                toast.success('Coupon applied successfully! 🎉');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to apply coupon');
+        }
+    };
+
     return (
-        <CartContext.Provider value={{ cartCount, cartData, isLoading, addToCartFn, updateCountFn, removeFromCartFn, clearCartFn, syncCart }}>
+        <CartContext.Provider value={{ cartCount, cartData, isLoading, addToCartFn, updateCountFn, removeFromCartFn, clearCartFn, applyCouponFn, syncCart }}>
             {children}
         </CartContext.Provider>
     );

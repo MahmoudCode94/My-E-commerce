@@ -47,7 +47,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         syncWishlist();
 
-        // Listen for login/logout events to resync
         const handleAuthChange = () => syncWishlist();
         window.addEventListener('userLogin', handleAuthChange);
 
@@ -63,7 +62,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        // Optimistic update
         setWishlistIds(prev => new Set(prev).add(productId));
         setWishlistCount(prev => prev + 1);
 
@@ -74,7 +72,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             }
             toast.success('Added to wishlist! ❤️');
         } catch (error: any) {
-            // Revert on failure
             setWishlistIds(prev => {
                 const next = new Set(prev);
                 next.delete(productId);
@@ -89,7 +86,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         const token = Cookies.get('userToken');
         if (!token) return;
 
-        // Optimistic update
         setWishlistIds(prev => {
             const next = new Set(prev);
             next.delete(productId);
@@ -104,7 +100,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             }
             toast.success('Removed from wishlist');
         } catch (error: any) {
-            // Revert on failure
             setWishlistIds(prev => new Set(prev).add(productId));
             setWishlistCount(prev => prev + 1);
             toast.error(error.message || 'Could not remove product');
