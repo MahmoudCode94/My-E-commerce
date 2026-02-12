@@ -13,9 +13,10 @@ import { useWishlist } from '@/context/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
+  priority?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const { checkIsInWishlist, addToWishlistFn, removeFromWishlistFn } = useWishlist();
   const { addToCartFn } = useCart();
   const productId = product.id || (product as any)._id;
@@ -64,7 +65,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               fill
               className="object-contain p-2 transition-transform duration-500 group-hover:scale-110"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              priority={false}
+              priority={priority}
             />
           </div>
           <div className="pt-2">

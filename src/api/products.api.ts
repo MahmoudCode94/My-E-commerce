@@ -44,6 +44,7 @@ export async function getProducts(): Promise<Product[]> {
         const res = await response.json();
         return res.data || [];
     } catch (error) {
+        console.error("Failed to fetch products:", error);
         return [];
     }
 }

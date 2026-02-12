@@ -17,7 +17,7 @@ export default function AllProducts() {
       setIsLoading(true);
       setError(null);
       const data = await getProducts();
-      
+
       // التأكد إن الداتا مصفوفة عشان م يحصلش Crash في الـ filter والـ map
       if (Array.isArray(data)) {
         setProducts(data);
@@ -108,7 +108,7 @@ export default function AllProducts() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, delay: index * 0.02 }}
               >
-                <ProductCard product={product} />
+                <ProductCard product={product} priority={index < 4} />
               </motion.div>
             ))}
           </AnimatePresence>

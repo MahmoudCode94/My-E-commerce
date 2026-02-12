@@ -3,9 +3,6 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
     const token = req.cookies.get("userToken")?.value;
-
-    // Basic JWT structure check (header.payload.signature)
-    // This prevents simple cookie spoofing like document.cookie="userToken=true"
     const isValidTokenStructure = token && token.split('.').length === 3;
     const isLoggedIn = !!isValidTokenStructure;
     const { pathname } = req.nextUrl;
