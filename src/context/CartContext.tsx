@@ -39,8 +39,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartCount(res.numOfCartItems || 0);
                 setCartData(res.data);
             }
-        } catch (error) {
-            console.error('Failed to sync cart:', error);
+        } catch (error: any) {
+            console.error('❌ Failed to sync cart:', error.message || error);
         } finally {
             setIsLoading(false);
         }

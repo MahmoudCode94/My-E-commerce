@@ -14,6 +14,7 @@ import {
     CarouselContent,
     CarouselItem,
 } from "@/components/ui/carousel";
+import ReviewsSection from '@/app/_components/ReviewsSection';
 
 export default function ProductDetails() {
     const { id } = useParams();
@@ -82,7 +83,6 @@ export default function ProductDetails() {
                                                         height={450}
                                                         className="object-contain p-4 transition-all duration-500 group-hover:scale-105"
                                                         priority={index === 0}
-                                                        unoptimized
                                                     />
                                                 </div>
                                             </CarouselItem>
@@ -133,6 +133,9 @@ export default function ProductDetails() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Reviews System */}
+                    <ReviewsSection productId={productId} />
                 </CardContent>
             </Card>
         </div>

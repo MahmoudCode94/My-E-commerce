@@ -11,8 +11,10 @@ const getHeaders = () => {
   };
 };
 
+import { fetchWithRetry } from "@/lib/api-client";
+
 async function handleRequest(url: string, options: RequestInit) {
-  const res = await fetch(url, options);
+  const res = await fetchWithRetry(url, options);
   const data = await res.json();
 
   if (res.status === 401) {

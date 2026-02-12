@@ -5,9 +5,11 @@ export interface SubCategory {
     slug: string;
 }
 
+import { fetchWithRetry } from "@/lib/api-client";
+
 export async function getSubCategories(): Promise<SubCategory[]> {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/subcategories`, {
+        const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_BASE_URL}/subcategories`, {
             method: 'GET',
             next: {
                 revalidate: 60,

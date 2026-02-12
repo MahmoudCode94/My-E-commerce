@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Loader2, Package, Calendar, CheckCircle2, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 import { getCookie } from "cookies-next";
+import { getUserOrders as fetchUserOrders } from "@/api/orders.api";
 
 interface DecodedToken {
   id: string;
@@ -50,8 +51,7 @@ export default function AllOrdersPage() {
       const decoded = jwtDecode<DecodedToken>(token);
       const userId = decoded.id;
 
-      const res = await fetch(`https://ecommerce.routemisr.com/api/v1/orders/user/${userId}`);
-      const data = await res.json();
+      const data = await fetchUserOrders(userId);
 
       if (Array.isArray(data)) {
         setOrders(data.reverse());

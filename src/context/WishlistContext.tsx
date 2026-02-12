@@ -47,11 +47,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         syncWishlist();
 
-        const handleAuthChange = () => syncWishlist();
-        window.addEventListener('userLogin', handleAuthChange);
+        const handleSync = () => syncWishlist();
+        window.addEventListener('userLogin', handleSync);
+        window.addEventListener('wishlistUpdated', handleSync);
 
         return () => {
-            window.removeEventListener('userLogin', handleAuthChange);
+            window.removeEventListener('userLogin', handleSync);
+            window.removeEventListener('wishlistUpdated', handleSync);
         };
     }, [syncWishlist]);
 

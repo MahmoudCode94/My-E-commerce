@@ -25,14 +25,15 @@ export interface Product {
     subcategory: SubCategory[];
 }
 
+import { fetchWithRetry } from "@/lib/api-client";
+
 export async function getProducts(): Promise<Product[]> {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+        const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
             method: 'GET',
             cache: 'no-store',
             headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                'Content-Type': 'application/json'
             }
         });
 
@@ -49,13 +50,12 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
     try {
-        const response = await fetch(
+        const response = await fetchWithRetry(
             `${process.env.NEXT_PUBLIC_BASE_URL}/products?category[in]=${categoryId}`,
             {
                 next: { revalidate: 60 },
                 headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    'Content-Type': 'application/json'
                 }
             }
         );
@@ -68,7 +68,7 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
 
 export async function getSpecificProduct(id: string): Promise<Product | null> {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`, {
+        const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`, {
             next: { revalidate: 60, tags: [`product-${id}`] }
         });
 

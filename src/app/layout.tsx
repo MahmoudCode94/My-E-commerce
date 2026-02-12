@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "./_components/Footer/Footer";
-import "../../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import { Providers } from "./providers";
 import Navbar from "./_components/Navbar/Navbar";
 

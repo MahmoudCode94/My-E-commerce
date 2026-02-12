@@ -28,16 +28,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [userId, setUserId] = useState('');
     const router = useRouter();
 
-    const checkAuth = useCallback(() => {
+    const checkAuth = useCallback(async () => {
         const token = Cookies.get('userToken');
         if (token) {
             try {
+                // 1. Decode locally for immediate UI feedback
                 const decoded = jwtDecode<DecodedToken>(token);
+
+                // 2. Optimistically set state
                 setIsLoggedIn(true);
                 setUserName(decoded.name || 'User');
                 setUserId(decoded.id || '');
+
+                // 3. Verify with server in background to ensure token hasn't been revoked
+                // We import dynamically to avoid circular dependencies if any, though imports are usually hoisted.
+                // Better to just use the imported verifyToken from api/auth.api if available in scope.
+                const { verifyToken } = await import('@/api/auth.api');
+                await verifyToken();
+
             } catch (error) {
-                console.error('Invalid token:', error);
+                console.error('Token verification failed:', error);
                 handleLogout();
             }
         } else {
@@ -57,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Cookies.set('userToken', token, {
             secure: true,
             sameSite: 'strict',
-            expires: 7 
+            expires: 7
         });
         window.dispatchEvent(new Event('userLogin'));
     };

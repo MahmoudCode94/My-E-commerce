@@ -1,5 +1,7 @@
 import Cookies from "js-cookie";
 
+import { fetchWithRetry } from "@/lib/api-client";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export interface RegisterValues { name: string; email: string; password: string; rePassword: string; phone: string; }
@@ -24,15 +26,9 @@ export interface ResetPasswordData {
     newPassword: string;
 }
 
-const getHeaders = (withToken = false) => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+import { getAuthHeaders } from "@/lib/auth-helper";
 
-    if (withToken) {
-        const token = Cookies.get('userToken');
-        if (token) headers['token'] = token as string;
-    }
-    return headers;
-};
+
 
 async function apiRequest<T>(
     endpoint: string,
@@ -41,9 +37,9 @@ async function apiRequest<T>(
     withToken = false
 ): Promise<T> {
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetchWithRetry(`${BASE_URL}${endpoint}`, {
         method,
-        headers: getHeaders(withToken),
+        headers: getAuthHeaders(withToken),
         body: body ? JSON.stringify(body) : undefined,
     });
 

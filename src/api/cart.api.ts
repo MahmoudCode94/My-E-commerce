@@ -27,20 +27,33 @@ export interface CartResponse {
     data: CartData;
 }
 
+import { fetchWithRetry } from '@/lib/api-client';
+
 async function cartRequest(url: string, method: string, body?: object): Promise<CartResponse> {
     const token = Cookies.get('userToken');
     if (!token) throw new Error("You must be logged in");
 
-    const res = await fetch(url, {
+    const headers: HeadersInit = {
+        'token': token
+    };
+
+    if (body) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const res = await fetchWithRetry(url, {
         method,
-        headers: {
-            'Content-Type': 'application/json',
-            'token': token
-        },
+        headers,
         body: body ? JSON.stringify(body) : undefined,
     });
 
-    const data = await res.json();
+    if (res.status === 204) {
+        return {} as CartResponse;
+    }
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    
     if (!res.ok) throw new Error(data.message || 'Server Error');
     return data as CartResponse;
 }

@@ -18,6 +18,8 @@ export interface OrderResponse {
   message?: string;
 }
 
+import { fetchWithRetry } from "@/lib/api-client";
+
 export async function createCashOrder(
   cartId: string,
   shippingAddress: ShippingAddress
@@ -25,7 +27,7 @@ export async function createCashOrder(
   const token = getCookie("userToken");
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${cartId}`, {
+    const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${cartId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,4 +45,17 @@ export async function createCashOrder(
     if (error instanceof Error) throw error;
     throw new Error("An error occurred while processing your order");
   }
+}
+
+export async function getUserOrders(userId: string) {
+  const token = getCookie("userToken");
+  const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/user/${userId}`, {
+    headers: {
+      "token": (token as string) ?? "",
+    },
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Failed to fetch orders");
+  return data;
 }

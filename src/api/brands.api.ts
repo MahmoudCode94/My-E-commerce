@@ -7,29 +7,21 @@ export interface Brand {
     image: string;
 }
 
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
+import { fetchWithRetry } from "@/lib/api-client";
 
-    try {
-        const response = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(id);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
-        return result.data;
-    } catch (error) {
-        clearTimeout(id);
-        console.error("Fetch Error:", error);
-        throw error;
-    }
+async function handleBrandRequest(url: string, options: RequestInit = {}) {
+    const response = await fetchWithRetry(url, options);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result = await response.json();
+    return result.data;
 }
 
 export const getBrands = (): Promise<Brand[]> =>
-    fetchWithTimeout(BASE_URL, {
+    handleBrandRequest(BASE_URL, {
         next: { revalidate: 60, tags: ['brands-list'] }
     }).catch(() => []);
 
 export const getSpecificBrand = (id: string): Promise<Brand> =>
-    fetchWithTimeout(`${BASE_URL}/${id}`, {
+    handleBrandRequest(`${BASE_URL}/${id}`, {
         next: { revalidate: 60 }
     });

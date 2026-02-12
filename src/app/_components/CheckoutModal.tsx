@@ -91,7 +91,12 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
     try {
       const serviceId = "service_fapxnmc";
       const templateId = "template_36164mb";
-      const publicKey = "VhImGrpDfzKP7GPNQ";
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+      if (!publicKey) {
+        console.error("EmailJS public key is missing");
+        return;
+      }
 
       const templateParams = {
         user_email: userEmail,
@@ -103,7 +108,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       };
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
-      console.log("Email sent successfully");
+      // Email sent successfully
     } catch (error) {
       console.error("EmailJS Error:", error);
     }

@@ -3,10 +3,14 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
     const token = req.cookies.get("userToken")?.value;
-    const isLoggedIn = !!token;
+
+    // Basic JWT structure check (header.payload.signature)
+    // This prevents simple cookie spoofing like document.cookie="userToken=true"
+    const isValidTokenStructure = token && token.split('.').length === 3;
+    const isLoggedIn = !!isValidTokenStructure;
     const { pathname } = req.nextUrl;
 
-    const protectedRoutes = ['/cart', '/wishlist', '/checkout', '/allorders', '/addresses', '/profile', '/update-profile'];
+    const protectedRoutes = ['/cart', '/wishlist', '/checkout', '/allorders', '/addresses', '/profile', '/update-profile', '/change-password'];
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
     if (isProtectedRoute && !isLoggedIn) {

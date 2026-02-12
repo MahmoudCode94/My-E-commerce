@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import { fetchWithRetry } from "@/lib/api-client";
 
 const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/wishlist`;
 
@@ -27,20 +28,30 @@ const getHeaders = () => {
   };
 };
 
+async function wishlistRequest(url: string, options: RequestInit = {}): Promise<WishlistResponse> {
+  const headers = getHeaders();
+  if (!headers) throw new Error("Authentication required");
+
+  const res = await fetchWithRetry(url, {
+    ...options,
+    headers: {
+      ...headers,
+      ...options.headers
+    }
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Wishlist operation failed");
+
+  return data;
+}
+
 export const getWishlist = async (): Promise<WishlistResponse> => {
   try {
-    const headers = getHeaders();
-    if (!headers) return { status: "error", data: [], message: "No token found" };
-
-    const res = await fetch(baseUrl, {
-      headers,
+    return await wishlistRequest(baseUrl, {
+      method: 'GET',
       cache: 'no-store'
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to fetch wishlist");
-
-    return data;
   } catch (error) {
     return { status: "error", data: [] };
   }
@@ -48,19 +59,10 @@ export const getWishlist = async (): Promise<WishlistResponse> => {
 
 export async function addToWishlist(productId: string): Promise<WishlistResponse> {
   try {
-    const headers = getHeaders();
-    if (!headers) throw new Error("Authentication required");
-
-    const res = await fetch(baseUrl, {
+    return await wishlistRequest(baseUrl, {
       method: 'POST',
-      headers,
-      body: JSON.stringify({ productId: productId })
+      body: JSON.stringify({ productId })
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to add product");
-
-    return data;
   } catch (error: any) {
     return { status: "error", data: [], message: error.message };
   }
@@ -68,18 +70,9 @@ export async function addToWishlist(productId: string): Promise<WishlistResponse
 
 export async function removeFromWishlist(productId: string): Promise<WishlistResponse> {
   try {
-    const headers = getHeaders();
-    if (!headers) throw new Error("Authentication required");
-
-    const res = await fetch(`${baseUrl}/${productId}`, {
-      method: 'DELETE',
-      headers
+    return await wishlistRequest(`${baseUrl}/${productId}`, {
+      method: 'DELETE'
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to remove product");
-
-    return data;
   } catch (error: any) {
     return { status: "error", data: [], message: error.message };
   }

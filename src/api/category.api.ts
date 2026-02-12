@@ -9,37 +9,25 @@ export interface Category {
     image: string;
 }
 
-async function fetchWithTimeout<T>(url: string, options: RequestInit = {}, timeout = 5000): Promise<T> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
+import { fetchWithRetry } from "@/lib/api-client";
 
-    try {
-        const response = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(timer);
-
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-
-        const res = await response.json();
-        return res.data;
-    } catch (error: unknown) {
-        clearTimeout(timer);
-        if (error instanceof Error) {
-            if (error.name === 'AbortError') throw new Error("Request Timeout");
-            throw error;
-        }
-        throw new Error("An unexpected error occurred");
-    }
+async function handleCategoryRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
+    const response = await fetchWithRetry(url, options);
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+    const res = await response.json();
+    return res.data;
 }
 
 export const getCategories = (): Promise<Category[]> =>
-    fetchWithTimeout<Category[]>(BASE_URL, {
+    handleCategoryRequest<Category[]>(BASE_URL, {
         next: { revalidate: 60, tags: ['categories-list'] }
     }).catch(() => []);
 
 export const getSpecificCategory = (id: string): Promise<Category> =>
-    fetchWithTimeout<Category>(`${BASE_URL}/${id}`, {
+    handleCategoryRequest<Category>(`${BASE_URL}/${id}`, {
         next: { revalidate: 60, tags: [`category-${id}`] }
     });
+
 export const getCategorySubCategories = (id: string): Promise<SubCategory[]> =>
-    fetchWithTimeout<SubCategory[]>(`${BASE_URL}/${id}/subcategories`)
+    handleCategoryRequest<SubCategory[]>(`${BASE_URL}/${id}/subcategories`)
         .catch(() => []);
