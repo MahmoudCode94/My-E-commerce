@@ -17,8 +17,6 @@ export default function AllProducts() {
       setIsLoading(true);
       setError(null);
       const data = await getProducts();
-
-      // التأكد إن الداتا مصفوفة عشان م يحصلش Crash في الـ filter والـ map
       if (Array.isArray(data)) {
         setProducts(data);
       } else {
@@ -35,8 +33,6 @@ export default function AllProducts() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  // استخدام useMemo لتحسين الأداء عند البحث
   const filteredProducts = useMemo(() => {
     return products.filter((product) =>
       product?.title?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -45,7 +41,7 @@ export default function AllProducts() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6 px-6 py-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:px-20">
+      <div className="grid grid-cols-1 gap-6 px-6 py-10 md:py-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:px-20">
         {[...Array(8)].map((_, i) => (
           <div key={i} className="border h-[400px] rounded-[2rem] border-slate-100 bg-slate-50 animate-pulse">
             <div className="m-4 rounded-[1.5rem] h-52 bg-slate-200/50" />
@@ -83,8 +79,8 @@ export default function AllProducts() {
   }
 
   return (
-    <div className="px-6 py-10 md:px-20">
-      <div className="flex justify-center mb-12">
+    <div className="px-6 py-10 md:px-20 md:py-4">
+      <div className="flex justify-center mb-6">
         <div className="relative w-full max-w-xl group">
           <input
             type="text"
@@ -97,7 +93,7 @@ export default function AllProducts() {
       </div>
 
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, index) => (
               <motion.div
