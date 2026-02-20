@@ -1,4 +1,4 @@
-import Cookies from "js-cookie";
+import { getCookie } from 'cookies-next';
 import { fetchWithRetry } from "@/lib/api-client";
 
 const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/wishlist`;
@@ -20,7 +20,7 @@ export interface WishlistResponse {
 }
 
 const getHeaders = () => {
-  const token = Cookies.get('userToken');
+  const token = getCookie('userToken') as string | undefined;
   if (!token) return null;
   return {
     'Content-Type': 'application/json',

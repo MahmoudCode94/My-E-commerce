@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie';
+import { getCookie } from 'cookies-next';
 
 export const getAuthHeaders = (withToken = true): Record<string, string> => {
     const headers: Record<string, string> = {
@@ -6,9 +6,9 @@ export const getAuthHeaders = (withToken = true): Record<string, string> => {
     };
 
     if (withToken) {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken');
         if (token) {
-            headers['token'] = token;
+            headers['token'] = token as string;
         }
     }
     return headers;

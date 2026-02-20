@@ -49,8 +49,8 @@ export default function CartPage() {
 
     if (!cartData || !cartData.products || cartData.products.length === 0) return (
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-            <ShoppingBag size={80} className="text-slate-200" />
-            <h2 className="text-2xl font-bold text-slate-800">Your cart is empty</h2>
+            <ShoppingBag size={80} className="text-slate-200 dark:text-slate-700" />
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Your cart is empty</h2>
             <Link href="/" className="px-8 py-3 text-white transition-all rounded-full bg-emerald-600 hover:bg-emerald-700">
                 Start Shopping
             </Link>
@@ -61,8 +61,8 @@ export default function CartPage() {
         <div className="max-w-6xl px-4 py-12 mx-auto">
             <div className="flex items-end justify-between pb-6 mb-8 border-b">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900">Shopping Cart</h1>
-                    <p className="mt-2 text-slate-500">You have {cartData.products.length} items</p>
+                    <h1 className="text-4xl font-black text-slate-900 dark:text-slate-50">Shopping Cart</h1>
+                    <p className="mt-2 text-slate-500 dark:text-slate-400">You have {cartData.products.length} items</p>
                 </div>
                 <button onClick={handleClearAll} className="flex items-center gap-2 px-4 py-2 font-medium text-red-500 transition-all rounded-lg hover:bg-red-50">
                     <Trash2 size={18} /> Clear Cart
@@ -72,8 +72,8 @@ export default function CartPage() {
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
                 <div className="space-y-4 lg:col-span-2">
                     {cartData.products.map((item) => (
-                        <div key={item.product._id} className="flex items-center gap-4 p-4 transition-all bg-white border shadow-sm rounded-2xl border-slate-100 hover:border-emerald-100">
-                            <div className="relative w-24 h-24 overflow-hidden border rounded-xl bg-slate-50 min-w-24 min-h-24">
+                        <div key={item.product._id} className="flex items-center gap-4 p-4 transition-all bg-white border shadow-sm dark:bg-slate-900 border-slate-100 dark:border-slate-800 rounded-2xl hover:border-emerald-100 dark:hover:border-emerald-900">
+                            <div className="relative w-24 h-24 overflow-hidden border rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 min-w-24 min-h-24">
                                 <Image
                                     key={item.product.imageCover}
                                     src={item.product.imageCover}
@@ -84,13 +84,13 @@ export default function CartPage() {
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-bold truncate text-slate-900">{item.product.title}</h3>
+                                <h3 className="font-bold truncate text-slate-900 dark:text-slate-100">{item.product.title}</h3>
                                 <p className="mt-1 font-bold text-emerald-600">{item.price} EGP</p>
                                 <div className="flex items-center gap-4 mt-3">
-                                    <div className="flex items-center border rounded-lg bg-slate-50">
+                                    <div className="flex items-center border rounded-lg bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700">
                                         <button
                                             onClick={() => handleUpdateCount(item.product._id, item.count - 1)}
-                                            className="p-1 hover:text-emerald-600 disabled:opacity-30"
+                                            className="p-1 hover:text-emerald-600 disabled:opacity-30 dark:text-slate-300 dark:hover:text-emerald-500"
                                             disabled={updatingId === item.product._id || item.count <= 1}
                                         >
                                             <Minus size={18} />
@@ -100,7 +100,7 @@ export default function CartPage() {
                                         </span>
                                         <button
                                             onClick={() => handleUpdateCount(item.product._id, item.count + 1)}
-                                            className="p-1 hover:text-emerald-600"
+                                            className="p-1 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-500"
                                             disabled={updatingId === item.product._id}
                                         >
                                             <Plus size={18} />
@@ -120,7 +120,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="lg:col-span-1">
-                    <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] sticky top-24 shadow-2xl">
+                    <div className="bg-slate-900 dark:bg-slate-950 text-white p-8 rounded-[2.5rem] sticky top-24 shadow-2xl border border-slate-800 dark:border-slate-900">
                         <h2 className="mb-6 text-2xl font-bold">Order Summary</h2>
 
                         <div className="pb-6 mb-6 border-b border-slate-700">
@@ -131,7 +131,7 @@ export default function CartPage() {
                                     placeholder="Enter code"
                                     value={couponCode}
                                     onChange={(e) => setCouponCode(e.target.value)}
-                                    className="flex-1 bg-transparent px-3 py-2 outline-none text-sm placeholder:text-slate-600"
+                                    className="flex-1 bg-transparent px-3 py-2 outline-none text-sm placeholder:text-slate-500 text-slate-200"
                                 />
                                 <button
                                     onClick={handleApplyCoupon}

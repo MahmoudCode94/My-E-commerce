@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { loginUser } from '@/api/auth.api';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
-import Cookies from 'js-cookie';
+import { setCookie } from 'cookies-next';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function LoginPage() {
       try {
         const data = await loginUser(values);
         if (data.message === 'success' && data.token) {
-          Cookies.set('userToken', data.token, { expires: 7, secure: true });
+          setCookie('userToken', data.token, { maxAge: 7 * 24 * 60 * 60, secure: true });
 
           window.dispatchEvent(new Event("userLogin"));
           router.push('/');
@@ -49,17 +49,17 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 text-slate-800">
-      <div className="bg-white w-full max-w-md rounded-[2rem] shadow-xl p-8 border border-slate-100">
-        <h1 className="mb-2 text-2xl font-black text-center text-slate-900">Welcome Back</h1>
-        <p className="mb-8 text-sm text-center text-slate-500">Please enter your details to sign in</p>
+    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800">
+        <h1 className="mb-2 text-2xl font-black text-center text-slate-900 dark:text-slate-50">Welcome Back</h1>
+        <p className="mb-8 text-sm text-center text-slate-500 dark:text-slate-400">Please enter your details to sign in</p>
 
         <form onSubmit={formik.handleSubmit} className="space-y-4">
           <div>
             <input
               {...formik.getFieldProps('email')}
               placeholder="Email Address"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             {formik.touched.email && formik.errors.email && (
               <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.email}</p>
@@ -71,7 +71,7 @@ export default function LoginPage() {
               {...formik.getFieldProps('password')}
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             <button
               type="button"
@@ -108,8 +108,8 @@ export default function LoginPage() {
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Login'}
           </button>
 
-          <p className="text-sm text-center text-slate-600">
-            Don&apos;t have an account? <Link href="/signup" className="font-bold text-emerald-600 hover:underline">Sign Up</Link>
+          <p className="text-sm text-center text-slate-600 dark:text-slate-400">
+            Don&apos;t have an account? <Link href="/signup" className="font-bold text-emerald-600 dark:text-emerald-500 hover:underline">Sign Up</Link>
           </p>
         </form>
       </div>

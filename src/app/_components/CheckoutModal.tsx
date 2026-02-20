@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { getAllAddresses, addAddress } from "@/api/address.api";
 import emailjs from "@emailjs/browser";
-import Cookies from "js-cookie";
+import { getCookie } from "cookies-next";
 
 interface Address {
   _id: string;
@@ -150,7 +150,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       return;
     }
 
-    const token = Cookies.get("userToken");
+    const token = getCookie("userToken");
     const baseUrl = window.location.origin;
     const url = type === "cash"
       ? `https://ecommerce.routemisr.com/api/v1/orders/${cartId}`
@@ -161,7 +161,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          token: token || "",
+          token: (token as string) || "",
         },
         body: JSON.stringify({ shippingAddress: addressToUse }),
       });
@@ -204,16 +204,16 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-lg p-8 bg-white shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg p-8 bg-white dark:bg-slate-900 shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto border dark:border-slate-800"
           >
             <button onClick={onClose} className="absolute p-2 transition-colors rounded-full top-6 right-6 hover:bg-slate-100 text-slate-400">
               <X size={20} />
             </button>
 
-            <h2 className="mb-6 text-2xl font-black text-slate-800">Checkout</h2>
+            <h2 className="mb-6 text-2xl font-black text-slate-800 dark:text-slate-100">Checkout</h2>
 
             <div className="mb-6 space-y-3 text-left">
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
                 <Mail size={16} className="text-emerald-600" /> Confirmation Email
               </label>
               <input
@@ -222,23 +222,23 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-4 transition-all border outline-none bg-slate-50 border-slate-100 rounded-2xl focus:ring-2 focus:ring-emerald-500"
+                className="w-full p-4 transition-all border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
-            <div className="flex gap-2 p-1 mb-6 bg-slate-100 rounded-2xl">
+            <div className="flex gap-2 p-1 mb-6 bg-slate-100 dark:bg-slate-800 rounded-2xl">
               <button
                 type="button"
                 onClick={() => setUseExisting(true)}
                 disabled={addresses.length === 0}
-                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${useExisting ? "bg-white shadow-sm text-emerald-600" : "text-slate-500 disabled:opacity-50"}`}
+                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${useExisting ? "bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400 disabled:opacity-50"}`}
               >
                 Saved Address
               </button>
               <button
                 type="button"
                 onClick={() => setUseExisting(false)}
-                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${!useExisting ? "bg-white shadow-sm text-emerald-600" : "text-slate-500"}`}
+                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${!useExisting ? "bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}
               >
                 New Address
               </button>
@@ -251,13 +251,13 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                 {useExisting ? (
                   <div className="space-y-3">
                     {addresses.map((addr) => (
-                      <label key={addr._id} className={`flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-emerald-500 bg-emerald-50" : "border-slate-100 hover:border-slate-200"}`}>
+                      <label key={addr._id} className={`flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20" : "border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600"}`}>
                         <div className="flex items-center gap-3">
                           <input type="radio" className="hidden" checked={selectedAddressId === addr._id} onChange={() => setSelectedAddressId(addr._id)} />
                           <MapPin size={18} className={selectedAddressId === addr._id ? "text-emerald-600" : "text-slate-400"} />
                           <div className="text-left">
-                            <p className="text-sm font-bold text-slate-800">{addr.name}</p>
-                            <p className="text-[11px] text-slate-500">{addr.city}, {addr.details}</p>
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{addr.name}</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">{addr.city}, {addr.details}</p>
                           </div>
                         </div>
                         {selectedAddressId === addr._id && <CheckCircle2 size={18} className="text-emerald-600" />}
@@ -266,10 +266,10 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                   </div>
                 ) : (
                   <div className="space-y-3 text-left">
-                    <input placeholder="Label (e.g. Home)" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })} />
-                    <input placeholder="City" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })} />
-                    <input placeholder="Phone" className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })} />
-                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 border outline-none bg-slate-50 rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100" onChange={(e) => setShippingAddress({ ...shippingAddress, details: e.target.value })} />
+                    <input placeholder="Label (e.g. Home)" className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })} />
+                    <input placeholder="City" className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })} />
+                    <input placeholder="Phone" className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })} />
+                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, details: e.target.value })} />
                   </div>
                 )}
 

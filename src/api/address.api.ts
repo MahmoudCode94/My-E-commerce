@@ -1,9 +1,9 @@
-import Cookies from "js-cookie";
+import { getCookie } from 'cookies-next';
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/addresses`;
 
-const getHeaders = () => {
-  const token = Cookies.get("userToken");
+const getHeaders = (): Record<string, string> => {
+  const token = getCookie("userToken") as string | undefined;
 
   return {
     "Content-Type": "application/json",

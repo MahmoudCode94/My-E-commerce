@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { verifyToken } from '@/api/auth.api';
 import { Loader2 } from 'lucide-react';
-import Cookies from 'js-cookie';
+import { deleteCookie } from 'cookies-next';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -17,11 +17,11 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         if (data && data.message === 'success') {
           setIsAuthorized(true);
         } else {
-          Cookies.remove('userToken');
+          deleteCookie('userToken');
           router.push('/login');
         }
       } catch (err) {
-        Cookies.remove('userToken');
+        deleteCookie('userToken');
         router.push('/login');
       }
     }

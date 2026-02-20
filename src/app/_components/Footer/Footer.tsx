@@ -21,15 +21,15 @@ export default function Footer() {
     }
 
     return (
-        <footer className="pt-16 pb-8 bg-slate-50 border-t border-slate-200 text-slate-600">
+        <footer className="pt-16 pb-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
             <div className="container px-4 mx-auto max-w-7xl">
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
                     <div className="lg:col-span-2">
                         <Link href="/" className="flex items-center gap-2 mb-6 text-2xl font-black tracking-tighter text-emerald-600">
                             <ShoppingBag size={28} />
-                            <span>FRESH<span className="text-slate-900">CART</span></span>
+                            <span>FRESH<span className="text-slate-900 dark:text-white">CART</span></span>
                         </Link>
-                        <p className="mb-6 leading-relaxed text-slate-500 max-w-sm">
+                        <p className="mb-6 leading-relaxed text-slate-500 dark:text-slate-400 max-w-sm">
                             Your one-stop destination for the latest technology, fashion, and lifestyle products. Quality guaranteed with fast shipping and excellent customer service.
                         </p>
                         <div className="space-y-3">
@@ -48,7 +48,7 @@ export default function Footer() {
                         </div>
                     </div>
                     <div>
-                        <h3 className="mb-6 font-bold text-slate-900 uppercase tracking-wider text-sm">Shop</h3>
+                        <h3 className="mb-6 font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-sm">Shop</h3>
                         <ul className="space-y-3 text-sm">
                             <li><Link href="/products" className="hover:text-emerald-600 transition-colors">Electronics</Link></li>
                             <li><Link href="/products" className="hover:text-emerald-600 transition-colors">Fashion</Link></li>
@@ -58,7 +58,7 @@ export default function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h3 className="mb-6 font-bold text-slate-900 uppercase tracking-wider text-sm">Customer Service</h3>
+                        <h3 className="mb-6 font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-sm">Customer Service</h3>
                         <ul className="space-y-3 text-sm">
                             <li><Link href="/contact" className="hover:text-emerald-600 transition-colors">Contact Us</Link></li>
                             <li><Link href="/help" className="hover:text-emerald-600 transition-colors">Help Center</Link></li>
@@ -68,7 +68,7 @@ export default function Footer() {
                         </ul>
                     </div>
                     <div>
-                        <h3 className="mb-6 font-bold text-slate-900 uppercase tracking-wider text-sm">Policy</h3>
+                        <h3 className="mb-6 font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-sm">Policy</h3>
                         <ul className="space-y-3 text-sm">
                             <li><Link href="/privacy" className="hover:text-emerald-600 transition-colors">Privacy Policy</Link></li>
                             <li><Link href="/terms" className="hover:text-emerald-600 transition-colors">Terms of Service</Link></li>
@@ -79,18 +79,18 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="pt-8 mt-12 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-xs text-slate-400">
+                <div className="pt-8 mt-12 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
                         © {new Date().getFullYear()} FreshCart. All rights reserved.
                     </p>
                     <div className="flex gap-4">
-                        <a href="#" className="p-2 text-slate-400 transition-colors hover:text-emerald-600 hover:bg-emerald-50 rounded-full">
+                        <a href="#" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Facebook size={20} />
                         </a>
-                        <a href="#" className="p-2 text-slate-400 transition-colors hover:text-emerald-600 hover:bg-emerald-50 rounded-full">
+                        <a href="#" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Twitter size={20} />
                         </a>
-                        <a href="#" className="p-2 text-slate-400 transition-colors hover:text-emerald-600 hover:bg-emerald-50 rounded-full">
+                        <a href="#" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Instagram size={20} />
                         </a>
                         <a href="#" className="p-2 text-slate-400 transition-colors hover:text-emerald-600 hover:bg-emerald-50 rounded-full">

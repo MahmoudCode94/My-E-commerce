@@ -1,34 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
-import toast from 'react-hot-toast';
 import { ShoppingCart, Loader2 } from 'lucide-react';
-import { addProductToCart } from '@/api/cart.api';
-import Cookies from 'js-cookie';
+import { useCart } from '@/context/CartContext';
 
 export default function AddToCartButton({ productId }: { productId: string }) {
+    const { addToCartFn } = useCart();
     const [isLoading, setIsLoading] = useState(false);
 
     async function handleAddToCart() {
-        const token = Cookies.get('userToken');
-
-        if (!token) {
-            toast.error("Please login first to add items to your cart");
-            return;
-        }
-
         setIsLoading(true);
         try {
-            const data = await addProductToCart(productId);
-
-            if (data.status === "success") {
-                toast.success(data.message || "Product added to cart! 🛒");
-                window.dispatchEvent(new Event("cartUpdated"));
-            } else {
-                toast.error(data.message || "Failed to add to cart");
-            }
-        } catch (error) {
-            toast.error("Something went wrong");
+            await addToCartFn(productId);
         } finally {
             setIsLoading(false);
         }
@@ -38,7 +21,7 @@ export default function AddToCartButton({ productId }: { productId: string }) {
         <button
             onClick={handleAddToCart}
             disabled={isLoading}
-            className="flex items-center justify-center flex-1 gap-2 py-4 text-xs font-bold tracking-tight text-white uppercase transition-all duration-300 shadow-xl bg-slate-950 rounded-2xl hover:bg-emerald-600 active:scale-95 shadow-slate-200 disabled:opacity-70"
+            className="flex items-center justify-center flex-1 gap-2 py-4 text-xs font-bold tracking-tight text-white uppercase transition-all duration-300 shadow-xl bg-slate-950 dark:bg-emerald-600 rounded-2xl hover:bg-emerald-600 dark:hover:bg-emerald-700 active:scale-95 shadow-slate-200 dark:shadow-none disabled:opacity-70"
         >
             {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

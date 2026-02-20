@@ -1,5 +1,5 @@
-import Cookies from "js-cookie";
+import { getCookie } from 'cookies-next';
 
 export async function getToken() {
-    return Cookies.get("userToken");
+    return getCookie("userToken") as string | undefined;
 }

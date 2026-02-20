@@ -59,16 +59,16 @@ export default function SignUp() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 text-slate-800">
-      <div className="bg-white w-full max-w-md rounded-[2rem] shadow-xl p-8 border border-slate-100">
-        <h1 className="mb-6 text-2xl font-black text-center text-slate-900">Create Account</h1>
+    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800">
+        <h1 className="mb-6 text-2xl font-black text-center text-slate-900 dark:text-slate-50">Create Account</h1>
 
         <form onSubmit={formik.handleSubmit} className="space-y-4">
           <div>
             <input
               {...formik.getFieldProps('name')}
               placeholder="Full Name"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             {formik.touched.name && formik.errors.name && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.name}</p>}
           </div>
@@ -77,7 +77,7 @@ export default function SignUp() {
             <input
               {...formik.getFieldProps('email')}
               placeholder="Email Address"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             {formik.touched.email && formik.errors.email && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.email}</p>}
           </div>
@@ -87,7 +87,7 @@ export default function SignUp() {
               {...formik.getFieldProps('password')}
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             <button
               type="button"
@@ -104,7 +104,7 @@ export default function SignUp() {
               {...formik.getFieldProps('rePassword')}
               type={showRePassword ? 'text' : 'password'}
               placeholder="Confirm Password"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             <button
               type="button"
@@ -120,7 +120,7 @@ export default function SignUp() {
             <input
               {...formik.getFieldProps('phone')}
               placeholder="Phone Number"
-              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500"
+              className="w-full px-4 py-3 text-sm transition-colors border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 dark:text-white focus:border-emerald-500"
             />
             {formik.touched.phone && formik.errors.phone && <p className="mt-1 ml-1 text-sm font-medium text-red-500">{formik.errors.phone}</p>}
           </div>

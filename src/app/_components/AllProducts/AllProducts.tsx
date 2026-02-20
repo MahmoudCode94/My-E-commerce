@@ -43,10 +43,10 @@ export default function AllProducts() {
     return (
       <div className="grid grid-cols-1 gap-6 px-6 py-10 md:py-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:px-20">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="border h-[400px] rounded-[2rem] border-slate-100 bg-slate-50 animate-pulse">
-            <div className="m-4 rounded-[1.5rem] h-52 bg-slate-200/50" />
-            <div className="w-3/4 h-6 mx-4 mb-3 rounded-md bg-slate-200/50" />
-            <div className="h-10 m-4 rounded-xl bg-slate-200/50" />
+          <div key={i} className="border h-[400px] rounded-[2rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 animate-pulse">
+            <div className="m-4 rounded-[1.5rem] h-52 bg-slate-200/50 dark:bg-slate-800/50" />
+            <div className="w-3/4 h-6 mx-4 mb-3 rounded-md bg-slate-200/50 dark:bg-slate-800/50" />
+            <div className="h-10 m-4 rounded-xl bg-slate-200/50 dark:bg-slate-800/50" />
           </div>
         ))}
       </div>
@@ -59,13 +59,13 @@ export default function AllProducts() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center max-w-md p-10 text-center bg-white shadow-xl rounded-[2.5rem] border border-slate-100"
+          className="flex flex-col items-center max-w-md p-10 text-center bg-white dark:bg-slate-950 shadow-xl rounded-[2.5rem] border border-slate-100 dark:border-slate-800"
         >
-          <div className="p-5 mb-4 text-red-500 rounded-full bg-red-50">
+          <div className="p-5 mb-4 text-red-500 rounded-full bg-red-50 dark:bg-red-950/20">
             <AlertCircle size={40} />
           </div>
-          <h3 className="mb-2 text-xl font-bold text-slate-900">Connection Issue</h3>
-          <p className="mb-8 leading-relaxed text-slate-500">{error}</p>
+          <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">Connection Issue</h3>
+          <p className="mb-8 leading-relaxed text-slate-500 dark:text-slate-400">{error}</p>
           <button
             onClick={loadData}
             className="flex items-center gap-2 px-8 py-4 font-bold text-white transition-all shadow-lg rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-95 shadow-slate-200"
@@ -85,10 +85,10 @@ export default function AllProducts() {
           <input
             type="text"
             placeholder="Search for products..."
-            className="w-full px-6 py-4 text-sm transition-all border-2 shadow-sm outline-none pl-14 border-slate-100 rounded-2xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="w-full px-6 py-4 text-sm transition-all border-2 shadow-sm outline-none pl-14 border-slate-100 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:focus:ring-emerald-500/20"
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Search className="absolute transition-colors -translate-y-1/2 left-5 top-1/2 text-slate-400 group-focus-within:text-emerald-500" size={22} />
+          <Search className="absolute transition-colors -translate-y-1/2 left-5 top-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-emerald-500" size={22} />
         </div>
       </div>
 
@@ -111,11 +111,11 @@ export default function AllProducts() {
         </div>
       ) : (
         <div className="py-32 text-center">
-          <div className="inline-flex p-6 mb-4 rounded-full bg-slate-50">
-            <Search size={40} className="text-slate-300" />
+          <div className="inline-flex p-6 mb-4 rounded-full bg-slate-50 dark:bg-slate-900">
+            <Search size={40} className="text-slate-300 dark:text-slate-700" />
           </div>
-          <p className="text-xl font-bold text-slate-800">No products found</p>
-          <p className="mt-2 text-slate-400">Try adjusting your search terms</p>
+          <p className="text-xl font-bold text-slate-800 dark:text-slate-100">No products found</p>
+          <p className="mt-2 text-slate-400 dark:text-slate-500">Try adjusting your search terms</p>
         </div>
       )}
     </div>

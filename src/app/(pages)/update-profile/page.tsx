@@ -42,21 +42,21 @@ export default function UpdateProfile() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50">
-      <div className="bg-white w-full max-w-md rounded-[2rem] shadow-xl p-8 border border-slate-100">
-        <div className="flex justify-center mb-4 text-emerald-600">
+    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 dark:bg-slate-950">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800">
+        <div className="flex justify-center mb-4 text-emerald-600 dark:text-emerald-500">
           <UserCircle size={48} />
         </div>
-        <h1 className="mb-6 text-2xl font-black text-center text-slate-900">Update Profile</h1>
+        <h1 className="mb-6 text-2xl font-black text-center text-slate-900 dark:text-slate-50">Update Profile</h1>
 
         <form onSubmit={formik.handleSubmit} className="space-y-4">
           <div>
-            <input {...formik.getFieldProps('name')} placeholder="New Name" className="w-full px-4 py-3 text-sm border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" />
+            <input {...formik.getFieldProps('name')} placeholder="New Name" className="w-full px-4 py-3 text-sm border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 dark:text-white border-slate-200 dark:border-slate-700 focus:border-emerald-500" />
             {formik.touched.name && formik.errors.name && <p className="mt-1 text-xs font-bold text-red-500">{formik.errors.name}</p>}
           </div>
 
           <div>
-            <input {...formik.getFieldProps('phone')} placeholder="New Phone" className="w-full px-4 py-3 text-sm border rounded-lg outline-none bg-slate-50 border-slate-200 focus:border-emerald-500" />
+            <input {...formik.getFieldProps('phone')} placeholder="New Phone" className="w-full px-4 py-3 text-sm border rounded-lg outline-none bg-slate-50 dark:bg-slate-800 dark:text-white border-slate-200 dark:border-slate-700 focus:border-emerald-500" />
             {formik.touched.phone && formik.errors.phone && <p className="mt-1 text-xs font-bold text-red-500">{formik.errors.phone}</p>}
           </div>
 

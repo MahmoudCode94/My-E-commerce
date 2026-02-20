@@ -70,13 +70,13 @@ export default function ResetPassword() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50">
-      <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl p-10 border border-slate-100">
-        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-6 shadow-inner rounded-2xl bg-emerald-50 text-emerald-600">
+    <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 dark:bg-slate-950">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-xl p-10 border border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-6 shadow-inner rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-500">
           <Lock size={28} />
         </div>
 
-        <h1 className="mb-2 text-2xl font-black text-center text-slate-900">Set New Password</h1>
+        <h1 className="mb-2 text-2xl font-black text-center text-slate-900 dark:text-slate-50">Set New Password</h1>
 
         <form onSubmit={formik.handleSubmit} className="space-y-5">
           <div>
@@ -84,8 +84,8 @@ export default function ResetPassword() {
               {...formik.getFieldProps('email')}
               type="email"
               placeholder="Email Address"
-              className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 
-                ${formik.touched.email && formik.errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+              className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 dark:bg-slate-800 dark:text-white
+                ${formik.touched.email && formik.errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-emerald-500'}`}
             />
             {formik.touched.email && formik.errors.email && <p className="mt-1.5 ml-2 text-xs font-bold text-red-500">{formik.errors.email}</p>}
           </div>
@@ -95,8 +95,8 @@ export default function ResetPassword() {
               {...formik.getFieldProps('newPassword')}
               type={showPass ? 'text' : 'password'}
               placeholder="New Password"
-              className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 
-                ${formik.touched.newPassword && formik.errors.newPassword ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+              className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 dark:bg-slate-800 dark:text-white
+                ${formik.touched.newPassword && formik.errors.newPassword ? 'border-red-300 focus:border-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-emerald-500'}`}
             />
             <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-4 text-slate-400 hover:text-emerald-500">
               {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -109,8 +109,8 @@ export default function ResetPassword() {
               {...formik.getFieldProps('confirmPassword')}
               type={showConfirmPass ? 'text' : 'password'}
               placeholder="Confirm New Password"
-              className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 
-                ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+              className={`w-full px-5 py-4 text-sm transition-all border rounded-2xl outline-none bg-slate-50 dark:bg-slate-800 dark:text-white
+                ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'border-red-300 focus:border-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-emerald-500'}`}
             />
             <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-4 top-4 text-slate-400 hover:text-emerald-500">
               {showConfirmPass ? <EyeOff size={20} /> : <Eye size={20} />}

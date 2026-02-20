@@ -1,4 +1,4 @@
-import Cookies from "js-cookie";
+import { getCookie } from 'cookies-next';
 
 import { fetchWithRetry } from "@/lib/api-client";
 

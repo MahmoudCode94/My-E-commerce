@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getWishlist, addToWishlist, removeFromWishlist } from '@/api/wishlist.api';
+import { getWishlist, addToWishlist, removeFromWishlist, WishlistItem } from '@/api/wishlist.api';
 import toast from 'react-hot-toast';
-import Cookies from 'js-cookie';
+import { getCookie } from 'cookies-next';
+import { ApiError } from '@/lib/api-client';
 
 interface WishlistContextType {
     wishlistIds: Set<string>;
@@ -22,7 +23,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const syncWishlist = useCallback(async () => {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken');
         if (!token) {
             setWishlistIds(new Set());
             setWishlistCount(0);
@@ -33,12 +34,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await getWishlist();
             if (res?.status === 'success' && Array.isArray(res.data)) {
-                const ids = new Set(res.data.map((item: any) => item._id || item.id));
+                // Ensure unique IDs
+                const ids = new Set(res.data.map((item: WishlistItem) => item._id || item.id));
                 setWishlistIds(ids);
                 setWishlistCount(res.count || res.data.length);
             }
         } catch (error) {
-            console.error('Failed to sync wishlist:', error);
+            // Silently fail or log
         } finally {
             setIsLoading(false);
         }
@@ -58,22 +60,24 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }, [syncWishlist]);
 
     const addToWishlistFn = async (productId: string) => {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken');
         if (!token) {
             toast.error('Please login first');
             return;
         }
 
+        // Optimistic update
         setWishlistIds(prev => new Set(prev).add(productId));
         setWishlistCount(prev => prev + 1);
 
         try {
             const res = await addToWishlist(productId);
             if (res?.status !== 'success') {
-                throw new Error(res?.message || 'Failed to add');
+                throw new ApiError(res?.message || 'Failed to add');
             }
             toast.success('Added to wishlist! ❤️');
         } catch (error: any) {
+            // Revert on failure
             setWishlistIds(prev => {
                 const next = new Set(prev);
                 next.delete(productId);
@@ -85,9 +89,10 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     };
 
     const removeFromWishlistFn = async (productId: string) => {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken');
         if (!token) return;
 
+        // Optimistic update
         setWishlistIds(prev => {
             const next = new Set(prev);
             next.delete(productId);
@@ -98,10 +103,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await removeFromWishlist(productId);
             if (res?.status !== 'success') {
-                throw new Error(res?.message || 'Failed to remove');
+                throw new ApiError(res?.message || 'Failed to remove');
             }
             toast.success('Removed from wishlist');
         } catch (error: any) {
+            // Revert on failure
             setWishlistIds(prev => new Set(prev).add(productId));
             setWishlistCount(prev => prev + 1);
             toast.error(error.message || 'Could not remove product');

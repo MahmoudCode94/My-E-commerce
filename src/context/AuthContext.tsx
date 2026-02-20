@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import Cookies from 'js-cookie';
+import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     const checkAuth = useCallback(async () => {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken') as string | undefined;
         if (token) {
             try {
                 // 1. Decode locally for immediate UI feedback
@@ -64,16 +64,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [checkAuth]);
 
     const handleLogin = (token: string) => {
-        Cookies.set('userToken', token, {
+        setCookie('userToken', token, {
             secure: true,
             sameSite: 'strict',
-            expires: 7
+            maxAge: 7 * 24 * 60 * 60 // 7 days in seconds
         });
         window.dispatchEvent(new Event('userLogin'));
     };
 
     const handleLogout = () => {
-        Cookies.remove('userToken');
+        deleteCookie('userToken');
         setIsLoggedIn(false);
         setUserName('');
         setUserId('');

@@ -39,11 +39,11 @@ export default function Categories() {
   if (error) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
-        <div className="bg-red-50 p-4 rounded-full text-red-500 mb-4">
+        <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-full text-red-500 mb-4">
           <LayoutGrid size={40} />
         </div>
-        <h2 className="text-xl font-bold text-slate-800">Something went wrong</h2>
-        <p className="text-slate-500 mb-6">{error}</p>
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Something went wrong</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">{error}</p>
         <button
           onClick={() => window.location.reload()}
           className="bg-slate-900 text-white px-6 py-2 rounded-lg hover:bg-slate-800"
@@ -55,22 +55,22 @@ export default function Categories() {
   }
 
   return (
-    <section className="min-h-screen bg-slate-50 py-12 px-6 md:px-20">
+    <section className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-6 md:px-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
         <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 flex items-center gap-4">
-            <span className="bg-emerald-100 p-2 rounded-2xl">
-              <LayoutGrid className="text-emerald-600 w-8 h-8" />
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-4">
+            <span className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-2xl">
+              <LayoutGrid className="text-emerald-600 dark:text-emerald-400 w-8 h-8" />
             </span>
             Our Categories
           </h1>
-          <p className="text-slate-500 text-lg max-w-md">
+          <p className="text-slate-500 dark:text-slate-400 text-lg max-w-md">
             Find everything you need by exploring our curated collections.
           </p>
         </div>
-        <div className="bg-white border border-slate-200 px-5 py-3 rounded-2xl shadow-sm flex items-center gap-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3 rounded-2xl shadow-sm flex items-center gap-3">
           <span className="flex h-3 w-3 rounded-full bg-emerald-500"></span>
-          <span className="font-bold text-slate-700">{categories.length} Total Categories</span>
+          <span className="font-bold text-slate-700 dark:text-slate-300">{categories.length} Total Categories</span>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -83,7 +83,7 @@ export default function Categories() {
           >
             <Link
               href={`/categories/${category._id}`}
-              className="group relative block bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 hover:-translate-y-3"
+              className="group relative block bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 dark:border-slate-800 hover:-translate-y-3"
             >
               <div className="relative h-80 w-full overflow-hidden">
                 <Image

@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie';
+import { getCookie } from 'cookies-next';
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/cart`;
 
@@ -30,7 +30,7 @@ export interface CartResponse {
 import { fetchWithRetry } from '@/lib/api-client';
 
 async function cartRequest(url: string, method: string, body?: object): Promise<CartResponse> {
-    const token = Cookies.get('userToken');
+    const token = getCookie("userToken") as string | undefined;
     if (!token) throw new Error("You must be logged in");
 
     const headers: HeadersInit = {
@@ -53,7 +53,7 @@ async function cartRequest(url: string, method: string, body?: object): Promise<
 
     const text = await res.text();
     const data = text ? JSON.parse(text) : {};
-    
+
     if (!res.ok) throw new Error(data.message || 'Server Error');
     return data as CartResponse;
 }

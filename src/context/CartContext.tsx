@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getUserCart, addProductToCart, updateProductCount, removeCartItem, clearUserCart, applyCoupon, CartData } from '@/api/cart.api';
+import { getUserCart, addProductToCart, updateProductCount, removeCartItem, clearUserCart, applyCoupon, CartData, CartItem } from '@/api/cart.api';
 import toast from 'react-hot-toast';
-import Cookies from 'js-cookie';
+import { getCookie } from 'cookies-next';
+import { ApiError } from '@/lib/api-client';
 
 interface CartContextType {
     cartCount: number;
@@ -25,7 +26,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const syncCart = useCallback(async () => {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken');
         if (!token) {
             setCartCount(0);
             setCartData(null);
@@ -36,11 +37,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await getUserCart();
             if (res?.status === 'success') {
-                setCartCount(res.numOfCartItems || 0);
+                const totalCount = res.data?.products?.reduce((acc: number, item: CartItem) => acc + (item.count || 0), 0) || 0;
+                setCartCount(totalCount);
                 setCartData(res.data);
             }
         } catch (error: any) {
-            console.error('❌ Failed to sync cart:', error.message || error);
+            // Silently fail for sync errors on background, or log if needed
+            // console.error('Failed to sync cart:', error);
         } finally {
             setIsLoading(false);
         }
@@ -60,7 +63,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, [syncCart]);
 
     const addToCartFn = async (productId: string) => {
-        const token = Cookies.get('userToken');
+        const token = getCookie('userToken');
         if (!token) {
             toast.error('Please login first to shop');
             return;
@@ -69,11 +72,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await addProductToCart(productId);
             if (res?.status === 'success') {
-                setCartCount(res.numOfCartItems || cartCount + 1);
+                const totalCount = res.data?.products?.reduce((acc: number, item: CartItem) => acc + (item.count || 0), 0) || 0;
+                setCartCount(totalCount);
                 if (res.data) setCartData(res.data);
                 toast.success(res.message || 'Added to cart successfully! 🛒');
             } else {
-                throw new Error(res?.message || 'Failed to add');
+                throw new ApiError(res?.message || 'Failed to add');
             }
         } catch (error: any) {
             toast.error(error.message || 'Failed to add to cart');
@@ -84,7 +88,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await updateProductCount(productId, count);
             if (res?.status === 'success') {
-                setCartCount(res.numOfCartItems || 0);
+                const totalCount = res.data?.products?.reduce((acc: number, item: CartItem) => acc + (item.count || 0), 0) || 0;
+                setCartCount(totalCount);
                 setCartData(res.data);
                 toast.success('Cart updated');
             }
@@ -97,7 +102,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await removeCartItem(productId);
             if (res?.status === 'success') {
-                setCartCount(res.numOfCartItems || 0);
+                const totalCount = res.data?.products?.reduce((acc: number, item: CartItem) => acc + (item.count || 0), 0) || 0;
+                setCartCount(totalCount);
                 setCartData(res.data);
                 toast.success('Item removed');
             }

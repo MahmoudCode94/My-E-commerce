@@ -17,11 +17,11 @@ export default function CategorySlider({ categories, isLoading = false }: { cate
     return (
         <div className="px-6 py-10 md:px-20">
             <div className="flex items-center justify-between mb-6">
-                <h2 className='text-2xl font-bold md:text-3xl text-slate-800'>
+                <h2 className='text-2xl font-bold md:text-3xl text-slate-800 dark:text-slate-100 uppercase tracking-tighter'>
                     Shop Popular Categories
                 </h2>
-                <div className="flex-1 hidden h-1 mx-4 rounded-full bg-slate-100 sm:block"></div>
-                <Link href="/categories" className="text-sm font-semibold text-emerald-600 hover:underline">
+                <div className="flex-1 hidden h-1 mx-4 rounded-full bg-slate-100 dark:bg-slate-800 sm:block"></div>
+                <Link href="/categories" className="text-sm font-semibold text-emerald-600 hover:underline dark:text-emerald-500">
                     View All
                 </Link>
             </div>
@@ -42,7 +42,7 @@ export default function CategorySlider({ categories, isLoading = false }: { cate
                 {categories.map((cat) => (
                     <SwiperSlide key={cat._id}>
                         <Link href={`/categories/${cat._id}`} className="relative flex flex-col gap-3 cursor-pointer group">
-                            <div className="relative w-full h-64 overflow-hidden transition-all duration-500 border shadow-sm rounded-2xl border-slate-100 group-hover:shadow-xl group-hover:-translate-y-2">
+                            <div className="relative w-full h-64 overflow-hidden transition-all duration-500 border shadow-sm rounded-2xl border-slate-100 dark:border-slate-800 group-hover:shadow-xl group-hover:-translate-y-2">
                                 <Image
                                     src={cat.image}
                                     alt={cat.name}
@@ -56,7 +56,7 @@ export default function CategorySlider({ categories, isLoading = false }: { cate
                                     </span>
                                 </div>
                             </div>
-                            <h3 className="font-semibold text-center transition-colors duration-300 text-slate-700 group-hover:text-emerald-600">
+                            <h3 className="font-semibold text-center transition-colors duration-300 text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-500">
                                 {cat.name}
                             </h3>
                         </Link>
