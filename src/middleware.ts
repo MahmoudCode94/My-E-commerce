@@ -14,7 +14,7 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/login', req.url));
     }
 
-    const guestRoutes = ['/login', '/signup', '/register', '/forgot-password'];
+    const guestRoutes = ['/login', '/signup', '/register', '/forgot-password', '/verify-code', '/reset-password'];
     const isGuestRoute = guestRoutes.some(route => pathname.startsWith(route));
 
     if (isGuestRoute && isLoggedIn) {

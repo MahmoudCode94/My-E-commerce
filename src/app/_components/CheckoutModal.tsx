@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { getAllAddresses, addAddress } from "@/api/address.api";
 import emailjs from "@emailjs/browser";
 import { getCookie } from "cookies-next";
+import { useCart } from "@/context/CartContext";
 
 interface Address {
   _id: string;
@@ -43,8 +44,6 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
-
-import { useCart } from "@/context/CartContext";
 
 export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   const router = useRouter();
@@ -108,7 +107,6 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       };
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
-      // Email sent successfully
     } catch (error) {
       console.error("EmailJS Error:", error);
     }
@@ -117,15 +115,18 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   async function prepareAddress(): Promise<ShippingAddress | null> {
     if (useExisting) {
       const selected = addresses.find((addr) => addr._id === selectedAddressId);
-      if (!selected) return null;
+      if (!selected) {
+        toast.error("Please select a saved address or create a new one");
+        return null;
+      }
       return {
         details: selected.details,
         phone: selected.phone,
         city: selected.city,
       };
     } else {
-      if (!shippingAddress.city || !shippingAddress.phone || !shippingAddress.details || !email) {
-        toast.error("Please fill in all details including email");
+      if (!shippingAddress.city || !shippingAddress.phone || !shippingAddress.details) {
+        toast.error("Please fill in all address details");
         return null;
       }
       await addAddress(shippingAddress);
@@ -138,7 +139,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   }
 
   async function handleOrder(type: "cash" | "online") {
-    if (!email) {
+    if (!email.trim()) {
       toast.error("Email is required for order confirmation");
       return;
     }
@@ -171,11 +172,13 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
       if (data.status === "success") {
         if (type === "cash") {
           await sendConfirmationEmail(email, data.data as OrderData);
-          await syncCart(); // Refresh cart state (should be empty now)
+          await syncCart();
           toast.success(`Order placed! Check ${email} for confirmation`);
           onClose();
           router.push("/allorders");
         } else {
+          // Sync cart state before redirect so badge is accurate on return
+          await syncCart();
           window.location.href = data.session.url;
         }
       } else {
@@ -192,7 +195,7 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center p-4 z-100">
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-[100]">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -206,15 +209,16 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className="relative w-full max-w-lg p-8 bg-white dark:bg-slate-900 shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto border dark:border-slate-800"
           >
-            <button onClick={onClose} className="absolute p-2 transition-colors rounded-full top-6 right-6 hover:bg-slate-100 text-slate-400">
+            <button onClick={onClose} className="absolute p-2 transition-colors rounded-full top-6 right-6 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
               <X size={20} />
             </button>
 
             <h2 className="mb-6 text-2xl font-black text-slate-800 dark:text-slate-100">Checkout</h2>
 
+            {/* Email — always visible, required for all order types */}
             <div className="mb-6 space-y-3 text-left">
               <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                <Mail size={16} className="text-emerald-600" /> Confirmation Email
+                <Mail size={16} className="text-emerald-600" /> Confirmation Email <span className="text-red-400 text-xs font-medium">(required)</span>
               </label>
               <input
                 type="email"

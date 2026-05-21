@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/api/auth.api';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SignUp() {
   const router = useRouter();
@@ -134,6 +135,10 @@ export default function SignUp() {
           >
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign Up'}
           </button>
+
+          <p className="text-sm text-center text-slate-600 dark:text-slate-400 mt-4">
+            Already have an account? <Link href="/login" className="font-bold text-emerald-600 dark:text-emerald-500 hover:underline">Login</Link>
+          </p>
         </form>
       </div>
     </div>

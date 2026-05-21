@@ -59,12 +59,16 @@ export default function HomeSlider() {
                 <Image 
                     src={img1} 
                     alt="staticSlider" 
-                    className="w-50 h-15 md:h-25 lg:h-27.5  object-cover"
+                    className="w-50 h-15 md:h-25 lg:h-27.5 object-cover"
+                    priority
+                    sizes="200px"
                 />
                 <Image 
                     src={img2} 
                     alt="staticSlider" 
-                    className="w-50 h-15 md:h-25 lg:h-27.5  object-cover"
+                    className="w-50 h-15 md:h-25 lg:h-27.5 object-cover"
+                    priority
+                    sizes="200px"
                 />
             </div>
         </div>

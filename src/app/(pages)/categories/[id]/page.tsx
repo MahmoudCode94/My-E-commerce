@@ -72,7 +72,7 @@ export default function CategoryDetailsPage() {
     };
 
     if (isLoading) return (
-        <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-950">
             <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
         </div>
     );
@@ -80,7 +80,7 @@ export default function CategoryDetailsPage() {
     const { category, filteredProducts, subCategories } = pageData;
 
     return (
-        <div className="min-h-screen pb-20 bg-slate-50">
+        <div className="min-h-screen pb-20 bg-slate-50 dark:bg-slate-950">
             <div className="relative w-full h-75 md:h-100">
                 {category?.image && (
                     <Image 
@@ -103,8 +103,8 @@ export default function CategoryDetailsPage() {
             </div>
 
             <div className="px-6 -translate-y-12 md:px-20">
-                <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mb-12">
-                    <div className="flex items-center gap-2 mb-6 font-bold text-slate-800">
+                <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 mb-12">
+                    <div className="flex items-center gap-2 mb-6 font-bold text-slate-800 dark:text-slate-200">
                         <Filter size={20} className="text-emerald-500" />
                         <span>Filter by Subcategory</span>
                     </div>
@@ -114,8 +114,8 @@ export default function CategoryDetailsPage() {
                             onClick={() => handleFilter('all')}
                             className={`px-6 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
                                 activeSubId === 'all' 
-                                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' 
-                                : 'bg-slate-50 text-slate-600 hover:bg-slate-200'
+                                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                                : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                             }`}
                         >
                             All Products
@@ -127,8 +127,8 @@ export default function CategoryDetailsPage() {
                                 onClick={() => handleFilter(sub._id)}
                                 className={`px-6 py-3 rounded-2xl text-sm font-bold transition-all duration-300 ${
                                     activeSubId === sub._id 
-                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' 
-                                    : 'bg-slate-50 text-slate-600 hover:bg-slate-200'
+                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {sub.name}
@@ -143,8 +143,8 @@ export default function CategoryDetailsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-[3rem] p-20 md:p-32 text-center border-2 border-dashed border-slate-200">
-                        <p className="text-xl font-medium text-slate-400">No products found for this subcategory.</p>
+                    <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-20 md:p-32 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                        <p className="text-xl font-medium text-slate-400 dark:text-slate-500">No products found for this subcategory.</p>
                     </div>
                 )}
             </div>

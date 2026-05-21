@@ -34,8 +34,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         try {
             const res = await getWishlist();
             if (res?.status === 'success' && Array.isArray(res.data)) {
-                // Ensure unique IDs
-                const ids = new Set(res.data.map((item: WishlistItem) => item._id || item.id));
+                const ids = new Set(res.data.map((item: WishlistItem) => item._id));
                 setWishlistIds(ids);
                 setWishlistCount(res.count || res.data.length);
             }

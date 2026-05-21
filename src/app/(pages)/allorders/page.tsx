@@ -127,7 +127,7 @@ export default function AllOrdersPage() {
             <div className="p-6">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {order.cartItems.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-4 group">
+                  <div key={`${item.product.title}-${idx}`} className="flex items-center gap-4 group">
                     <div className="relative flex-shrink-0 w-16 h-16 overflow-hidden transition-transform bg-white dark:bg-slate-800 border shadow-sm rounded-xl border-slate-100 dark:border-slate-700 group-hover:scale-105">
                       <Image
                         src={item.product.imageCover}

@@ -42,7 +42,8 @@ export default function AddressModal({ isOpen, onClose, onSuccess }: Props) {
         onClose();
       }
     } catch (error) {
-      toast.error("An error occurred");
+      const message = error instanceof Error ? error.message : "An error occurred";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

@@ -60,21 +60,21 @@ export default function Footer() {
                     <div>
                         <h3 className="mb-6 font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-sm">Customer Service</h3>
                         <ul className="space-y-3 text-sm">
-                            <li><Link href="/contact" className="hover:text-emerald-600 transition-colors">Contact Us</Link></li>
-                            <li><Link href="/help" className="hover:text-emerald-600 transition-colors">Help Center</Link></li>
-                            <li><Link href="/orders" className="hover:text-emerald-600 transition-colors">Track Your Order</Link></li>
-                            <li><Link href="/returns" className="hover:text-emerald-600 transition-colors">Returns & Exchanges</Link></li>
-                            <li><Link href="/guide" className="hover:text-emerald-600 transition-colors">Size Guide</Link></li>
+                            <li><Link href="/allorders" className="hover:text-emerald-600 transition-colors">My Orders</Link></li>
+                            <li><Link href="/addresses" className="hover:text-emerald-600 transition-colors">My Addresses</Link></li>
+                            <li><Link href="/cart" className="hover:text-emerald-600 transition-colors">Shopping Cart</Link></li>
+                            <li><Link href="/wishlist" className="hover:text-emerald-600 transition-colors">My Wishlist</Link></li>
+                            <li><Link href="/update-profile" className="hover:text-emerald-600 transition-colors">Account Settings</Link></li>
                         </ul>
                     </div>
                     <div>
                         <h3 className="mb-6 font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-sm">Policy</h3>
                         <ul className="space-y-3 text-sm">
-                            <li><Link href="/privacy" className="hover:text-emerald-600 transition-colors">Privacy Policy</Link></li>
-                            <li><Link href="/terms" className="hover:text-emerald-600 transition-colors">Terms of Service</Link></li>
-                            <li><Link href="/cookie" className="hover:text-emerald-600 transition-colors">Cookie Policy</Link></li>
-                            <li><Link href="/shipping" className="hover:text-emerald-600 transition-colors">Shipping Policy</Link></li>
-                            <li><Link href="/refund" className="hover:text-emerald-600 transition-colors">Refund Policy</Link></li>
+                            <li><a href="#" className="hover:text-emerald-600 transition-colors">Privacy Policy</a></li>
+                            <li><a href="#" className="hover:text-emerald-600 transition-colors">Terms of Service</a></li>
+                            <li><a href="#" className="hover:text-emerald-600 transition-colors">Cookie Policy</a></li>
+                            <li><a href="#" className="hover:text-emerald-600 transition-colors">Shipping Policy</a></li>
+                            <li><a href="#" className="hover:text-emerald-600 transition-colors">Refund Policy</a></li>
                         </ul>
                     </div>
                 </div>
@@ -84,16 +84,16 @@ export default function Footer() {
                         © {new Date().getFullYear()} FreshCart. All rights reserved.
                     </p>
                     <div className="flex gap-4">
-                        <a href="#" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
+                        <a href="#" aria-label="Facebook" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Facebook size={20} />
                         </a>
-                        <a href="#" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
+                        <a href="#" aria-label="Twitter" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Twitter size={20} />
                         </a>
-                        <a href="#" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
+                        <a href="#" aria-label="Instagram" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Instagram size={20} />
                         </a>
-                        <a href="#" className="p-2 text-slate-400 transition-colors hover:text-emerald-600 hover:bg-emerald-50 rounded-full">
+                        <a href="#" aria-label="LinkedIn" className="p-2 text-slate-400 dark:text-slate-500 transition-colors hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full">
                             <Linkedin size={20} />
                         </a>
                     </div>

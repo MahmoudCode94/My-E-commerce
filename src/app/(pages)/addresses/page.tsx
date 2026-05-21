@@ -26,9 +26,8 @@ export default function AddressesPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const token = getCookie("userToken");
-
   const loadAddresses = useCallback(async () => {
+    const token = getCookie("userToken");
     if (!token) {
       setLoading(false);
       toast.error("Please login to see your addresses");
@@ -47,7 +46,7 @@ export default function AddressesPage() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   async function handleDelete(id: string) {
     const toastId = toast.loading("Removing address...");

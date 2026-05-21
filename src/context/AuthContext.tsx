@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import { verifyToken } from '@/api/auth.api';
 
 interface DecodedToken {
     name?: string;
@@ -41,9 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUserId(decoded.id || '');
 
                 // 3. Verify with server in background to ensure token hasn't been revoked
-                // We import dynamically to avoid circular dependencies if any, though imports are usually hoisted.
-                // Better to just use the imported verifyToken from api/auth.api if available in scope.
-                const { verifyToken } = await import('@/api/auth.api');
                 await verifyToken();
 
             } catch (error) {

@@ -14,6 +14,8 @@ export default function CartPage() {
     const [couponCode, setCouponCode] = useState<string>("");
     const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
 
+    const [confirmClear, setConfirmClear] = useState<boolean>(false);
+
     async function handleUpdateCount(id: string, count: number) {
         if (count < 1) return;
         setUpdatingId(id);
@@ -28,7 +30,13 @@ export default function CartPage() {
     }
 
     async function handleClearAll() {
+        if (!confirmClear) {
+            setConfirmClear(true);
+            setTimeout(() => setConfirmClear(false), 3000);
+            return;
+        }
         await clearCartFn();
+        setConfirmClear(false);
     }
 
     async function handleApplyCoupon() {
@@ -64,8 +72,8 @@ export default function CartPage() {
                     <h1 className="text-4xl font-black text-slate-900 dark:text-slate-50">Shopping Cart</h1>
                     <p className="mt-2 text-slate-500 dark:text-slate-400">You have {cartData.products.length} items</p>
                 </div>
-                <button onClick={handleClearAll} className="flex items-center gap-2 px-4 py-2 font-medium text-red-500 transition-all rounded-lg hover:bg-red-50">
-                    <Trash2 size={18} /> Clear Cart
+                <button onClick={handleClearAll} className="flex items-center gap-2 px-4 py-2 font-medium text-red-500 transition-all rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">
+                    <Trash2 size={18} /> {confirmClear ? "Click again to confirm" : "Clear Cart"}
                 </button>
             </div>
 

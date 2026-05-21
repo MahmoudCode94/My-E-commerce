@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Heart, User, LogOut, Package, ChevronDown, UserCircle, KeyRound, Menu, X, MapPin } from "lucide-react";
@@ -8,14 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-
-interface DecodedToken {
-  name?: string;
-  id?: string;
-  iat?: number;
-  exp?: number;
-}
-
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Navbar() {

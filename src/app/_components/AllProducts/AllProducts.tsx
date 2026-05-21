@@ -22,9 +22,9 @@ export default function AllProducts() {
       } else {
         throw new Error("Invalid data format received from server");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Fetch Error:", err);
-      setError("The server is currently unavailable (Error 500). Please try again in a few moments.");
+      setError(err?.message || "Failed to load products. Please try again.");
     } finally {
       setIsLoading(false);
     }

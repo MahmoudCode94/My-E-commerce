@@ -115,7 +115,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const clearCartFn = async () => {
         try {
             const res = await clearUserCart();
-            if (res?.message === 'success') {
+            if (res?.status === 'success') {
                 setCartCount(0);
                 setCartData({ _id: '', totalCartPrice: 0, products: [] });
                 toast.success('Cart cleared');
