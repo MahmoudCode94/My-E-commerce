@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { getReviewsForProduct, createReview, updateReview, deleteReview, Review } from '@/api/reviews.api';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
-import { ApiError } from '@/lib/api-client';
 
 export function useReviews(productId: string) {
     const { isLoggedIn, userId, userName } = useAuth();
@@ -15,7 +14,7 @@ export function useReviews(productId: string) {
             setIsLoading(true);
             const data = await getReviewsForProduct(productId);
             setReviews(data.data || []);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error loading reviews:', error);
         } finally {
             setIsLoading(false);
@@ -54,8 +53,9 @@ export function useReviews(productId: string) {
             setReviews(prev => [newReview, ...prev]);
             toast.success('Review posted! 🎉');
             return true;
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to post review');
+        } catch (error) {
+            const err = error as Error;
+            toast.error(err.message || 'Failed to post review');
             return false;
         } finally {
             setIsSubmitting(false);
@@ -69,8 +69,9 @@ export function useReviews(productId: string) {
             setReviews(prev => prev.map(r => r._id === reviewId ? { ...res.data, user: r.user } : r));
             toast.success('Review updated! ✨');
             return true;
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to update review');
+        } catch (error) {
+            const err = error as Error;
+            toast.error(err.message || 'Failed to update review');
             return false;
         } finally {
             setIsSubmitting(false);
@@ -83,8 +84,9 @@ export function useReviews(productId: string) {
         try {
             await deleteReview(reviewId);
             toast.success('Review deleted');
-        } catch (error: any) {
-            toast.error(error.message || 'Delete failed');
+        } catch (error) {
+            const err = error as Error;
+            toast.error(err.message || 'Delete failed');
             loadReviews(); // Revert if failed
         }
     };

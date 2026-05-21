@@ -16,6 +16,8 @@ interface CartContextType {
     clearCartFn: () => Promise<void>;
     applyCouponFn: (couponName: string) => Promise<void>;
     syncCart: () => Promise<void>;
+    isCartDrawerOpen: boolean;
+    setIsCartDrawerOpen: (open: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -24,6 +26,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cartCount, setCartCount] = useState(0);
     const [cartData, setCartData] = useState<CartData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
 
     const syncCart = useCallback(async () => {
         const token = getCookie('userToken');
@@ -41,7 +44,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartCount(totalCount);
                 setCartData(res.data);
             }
-        } catch (error: any) {
+        } catch {
             // Silently fail for sync errors on background, or log if needed
             // console.error('Failed to sync cart:', error);
         } finally {
@@ -76,11 +79,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartCount(totalCount);
                 if (res.data) setCartData(res.data);
                 toast.success(res.message || 'Added to cart successfully! 🛒');
+                setIsCartDrawerOpen(true);
             } else {
                 throw new ApiError(res?.message || 'Failed to add');
             }
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to add to cart');
+        } catch (error) {
+            const err = error as Error;
+            toast.error(err.message || 'Failed to add to cart');
         }
     };
 
@@ -93,7 +98,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartData(res.data);
                 toast.success('Cart updated');
             }
-        } catch (error: any) {
+        } catch {
             toast.error('Failed to update cart');
         }
     };
@@ -107,7 +112,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartData(res.data);
                 toast.success('Item removed');
             }
-        } catch (error: any) {
+        } catch {
             toast.error('Failed to remove item');
         }
     };
@@ -120,7 +125,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartData({ _id: '', totalCartPrice: 0, products: [] });
                 toast.success('Cart cleared');
             }
-        } catch (error: any) {
+        } catch {
             toast.error('Failed to clear cart');
         }
     };
@@ -132,13 +137,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 setCartData(res.data);
                 toast.success('Coupon applied successfully! 🎉');
             }
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to apply coupon');
+        } catch (error) {
+            const err = error as Error;
+            toast.error(err.message || 'Failed to apply coupon');
         }
     };
 
     return (
-        <CartContext.Provider value={{ cartCount, cartData, isLoading, addToCartFn, updateCountFn, removeFromCartFn, clearCartFn, applyCouponFn, syncCart }}>
+        <CartContext.Provider value={{ cartCount, cartData, isLoading, addToCartFn, updateCountFn, removeFromCartFn, clearCartFn, applyCouponFn, syncCart, isCartDrawerOpen, setIsCartDrawerOpen }}>
             {children}
         </CartContext.Provider>
     );

@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import Image from "next/image";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Product } from '@/api/products.api';
 import Link from "next/link";
 import { useCart } from '@/context/CartContext';
 import toast from 'react-hot-toast';
 import { Loader2, ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { getCookie } from 'cookies-next';
 import { useWishlist } from '@/context/WishlistContext';
 
@@ -35,7 +36,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     setIsAddingToCart(true);
     try {
       await addToCartFn(productId);
-    } catch (error: any) {
+    } catch {
     } finally {
       setIsAddingToCart(false);
     }
@@ -57,12 +58,12 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   return (
     <Card className="relative flex flex-row gap-5 pb-4 md:pb-1 overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 border-transparent shadow-sm group hover:shadow-xl hover:border-slate-200 dark:hover:border-slate-800 md:flex-col md:min-h-[440px]">
       <Link href={`/products/${productId}`} className="flex flex-row w-full gap-7 md:flex-col contents">
-        <div className="relative w-1/3 shrink-0 md:w-full h-36 md:h-52 bg-transparent rounded-r-xl md:rounded-NONE p-2">
+        <div className="relative w-1/3 shrink-0 md:w-full h-36 md:h-52 bg-transparent rounded-2xl m-3 md:m-0 p-2 overflow-hidden">
           <Image
             src={product.imageCover}
             alt={product.title}
             fill
-            className="object-contain transition-transform duration-500 group-hover:scale-110"
+            className="object-contain transition-transform duration-500 group-hover:scale-110 rounded-2xl"
             sizes="(max-width: 768px) 33vw, (max-width: 1200px) 50vw, 25vw"
             priority={priority}
           />
@@ -102,13 +103,17 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
               )}
             </button>
 
-            <button
+            <motion.button
               onClick={(e) => {
                 e.preventDefault();
                 handleWishlistToggle();
               }}
               disabled={isWishlisting}
-              className="p-2.5 transition-all rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
+              animate={isInWishlist ? { scale: 1.2 } : { scale: 1 }}
+              transition={{ duration: 0.25, type: "tween" }}
+              className="p-2.5 transition-colors rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
             >
               {isWishlisting ? (
                 <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
@@ -119,12 +124,12 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
                   stroke={isInWishlist ? "#ef4444" : "currentColor"}
-                  className={`w-5 h-5 transition-all duration-300 ${isInWishlist ? "scale-110" : "text-slate-400 dark:text-slate-500 hover:text-red-500"}`}
+                  className={`w-5 h-5 transition-all duration-300 ${isInWishlist ? "text-red-500" : "text-slate-400 dark:text-slate-500 hover:text-red-500"}`}
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                 </svg>
               )}
-            </button>
+            </motion.button>
           </div>
 
           <div className="flex md:hidden items-center gap-2 mt-auto pt-2">
@@ -138,25 +143,32 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             >
               {isAddingToCart ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add to Cart"}
             </button>
-            <button
+            <motion.button
               onClick={(e) => {
                 e.preventDefault();
                 handleWishlistToggle();
               }}
               disabled={isWishlisting}
+              whileTap={{ scale: 0.9 }}
+              animate={isInWishlist ? { scale: 1.2 } : { scale: 1 }}
+              transition={{ duration: 0.25, type: 'spring', stiffness: 350, damping: 15 }}
               className="p-2 border border-slate-100 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill={isInWishlist ? "#ef4444" : "none"}
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke={isInWishlist ? "#ef4444" : "currentColor"}
-                className={`w-4 h-4 ${isInWishlist ? "" : "text-slate-400 dark:text-slate-500"}`}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-              </svg>
-            </button>
+              {isWishlisting ? (
+                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill={isInWishlist ? "#ef4444" : "none"}
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke={isInWishlist ? "#ef4444" : "currentColor"}
+                  className={`w-4 h-4 transition-all duration-300 ${isInWishlist ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                </svg>
+              )}
+            </motion.button>
           </div>
         </div>
       </Link>

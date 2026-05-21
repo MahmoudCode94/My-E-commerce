@@ -15,7 +15,7 @@ export default function Navbar() {
   const { isLoggedIn, userName, logout } = useAuth();
 
   const { wishlistCount } = useWishlist();
-  const { cartCount } = useCart();
+  const { cartCount, setIsCartDrawerOpen } = useCart();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -68,26 +68,56 @@ export default function Navbar() {
           <ThemeToggle />
           {isLoggedIn ? (
             <>
-              <Link href="/wishlist" className={`relative p-2 md:p-2.5 rounded-full transition-all ${pathname === '/wishlist' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800'}`}>
-                <Heart size={22} />
-                <AnimatePresence>
+              <Link href="/wishlist" className={`relative p-2 md:p-2.5 rounded-full transition-all group ${pathname === '/wishlist' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800'}`}>
+                <Heart size={22} className="transition-transform group-hover:scale-115" />
+                <AnimatePresence mode="popLayout">
                   {wishlistCount > 0 && (
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute top-0.5 left-0.5 flex h-4 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-white dark:border-slate-950">
+                    <motion.span
+                      key={wishlistCount}
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ 
+                        scale: 1.2,
+                        opacity: 1
+                      }}
+                      exit={{ scale: 0.6, opacity: 0 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 400, 
+                        damping: 15,
+                        duration: 0.4
+                      }}
+                      className="absolute top-0.5 left-0.5 flex h-4 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-white dark:border-slate-950"
+                    >
                       {wishlistCount}
                     </motion.span>
                   )}
                 </AnimatePresence>
               </Link>
-              <Link href="/cart" className={`relative p-2 md:p-2.5 rounded-full transition-all ${pathname === '/cart' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800'}`}>
-                <ShoppingCart size={22} />
-                <AnimatePresence>
+              <button onClick={() => setIsCartDrawerOpen(true)} className="relative p-2 md:p-2.5 rounded-full transition-all group text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer">
+                <ShoppingCart size={22} className="transition-transform group-hover:scale-115" />
+                <AnimatePresence mode="popLayout">
                   {cartCount > 0 && (
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute top-0.5 left-0.5 flex h-4 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-sm border-2 border-white dark:border-slate-950">
+                    <motion.span
+                      key={cartCount}
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ 
+                        scale: 1.2,
+                        opacity: 1
+                      }}
+                      exit={{ scale: 0.6, opacity: 0 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 400, 
+                        damping: 15,
+                        duration: 0.4
+                      }}
+                      className="absolute top-0.5 left-0.5 flex h-4 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-sm border-2 border-white dark:border-slate-950"
+                    >
                       {cartCount}
                     </motion.span>
                   )}
                 </AnimatePresence>
-              </Link>
+              </button>
 
               <div className="relative ml-1 md:ml-2">
                 <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 p-1.5 transition-all border rounded-full md:pl-3 border-slate-100 dark:border-slate-800 hover:shadow-md bg-slate-50/50 dark:bg-slate-900/50">

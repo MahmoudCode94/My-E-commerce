@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Loader2, Star, Send, X } from 'lucide-react';
 
 interface ReviewFormProps {
@@ -23,15 +23,12 @@ export default function ReviewForm({
     const [reviewText, setReviewText] = useState('');
     const [rating, setRating] = useState(5);
 
-    useEffect(() => {
-        if (editingReview) {
-            setReviewText(editingReview.review);
-            setRating(editingReview.rating);
-        } else {
-            setReviewText('');
-            setRating(5);
-        }
-    }, [editingReview]);
+    const [prevEditingReview, setPrevEditingReview] = useState(editingReview);
+    if (editingReview !== prevEditingReview) {
+        setPrevEditingReview(editingReview);
+        setReviewText(editingReview ? editingReview.review : '');
+        setRating(editingReview ? editingReview.rating : 5);
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

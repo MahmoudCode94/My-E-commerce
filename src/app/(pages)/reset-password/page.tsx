@@ -19,12 +19,13 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPass, setShowPass] = useState<boolean>(false);
   const [showConfirmPass, setShowConfirmPass] = useState<boolean>(false);
+  const [savedEmail, setSavedEmail] = useState<string>("");
   const router = useRouter();
 
   React.useEffect(() => {
-    const savedEmail = localStorage.getItem("resetEmail");
-    if (savedEmail) {
-      formik.setFieldValue("email", savedEmail);
+    const email = localStorage.getItem("resetEmail");
+    if (email) {
+      setSavedEmail(email);
     }
   }, []);
 
@@ -40,7 +41,8 @@ export default function ResetPassword() {
   });
 
   const formik = useFormik<ResetPasswordFormValues>({
-    initialValues: { email: "", newPassword: "", confirmPassword: "" },
+    initialValues: { email: savedEmail || "", newPassword: "", confirmPassword: "" },
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values) => {
       setIsLoading(true);

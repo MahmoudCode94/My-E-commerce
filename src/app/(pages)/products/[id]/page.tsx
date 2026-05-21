@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from 'lucide-react';
 import AddWishlistButton from "@/app/_components/AddWishlistButton";
 import AddToCartButton from "@/app/_components/AddToCartButton";
 import { getSpecificProduct, Product } from '@/api/products.api';
@@ -15,6 +14,8 @@ import {
     CarouselItem,
 } from "@/components/ui/carousel";
 import ReviewsSection from '@/app/_components/ReviewsSection';
+import { ProductDetailsSkeleton } from '@/app/_components/Skeleton';
+import RecentlyViewed from '@/app/_components/RecentlyViewed';
 
 export default function ProductDetails() {
     const { id } = useParams();
@@ -42,11 +43,19 @@ export default function ProductDetails() {
         loadProductData();
     }, [loadProductData]);
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-950">
-            <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
-        </div>
-    );
+    useEffect(() => {
+        if (product) {
+            const prodId = product._id || product.id;
+            if (prodId) {
+                const viewed = JSON.parse(localStorage.getItem('freshcart_recently_viewed') || '[]');
+                const filtered = viewed.filter((id: string) => id !== prodId);
+                filtered.unshift(prodId);
+                localStorage.setItem('freshcart_recently_viewed', JSON.stringify(filtered.slice(0, 6)));
+            }
+        }
+    }, [product]);
+
+    if (isLoading) return <ProductDetailsSkeleton />;
 
     if (!product) return (
         <div className="flex items-center justify-center min-h-screen">
@@ -136,6 +145,9 @@ export default function ProductDetails() {
 
                     {/* Reviews System */}
                     <ReviewsSection productId={productId} />
+
+                    {/* Recently Viewed Products */}
+                    <RecentlyViewed currentProductId={productId} />
                 </CardContent>
             </Card>
         </div>

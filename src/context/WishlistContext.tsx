@@ -38,7 +38,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 setWishlistIds(ids);
                 setWishlistCount(res.count || res.data.length);
             }
-        } catch (error) {
+        } catch {
             // Silently fail or log
         } finally {
             setIsLoading(false);
@@ -75,7 +75,8 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 throw new ApiError(res?.message || 'Failed to add');
             }
             toast.success('Added to wishlist! ❤️');
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as Error;
             // Revert on failure
             setWishlistIds(prev => {
                 const next = new Set(prev);
@@ -83,7 +84,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 return next;
             });
             setWishlistCount(prev => prev - 1);
-            toast.error(error.message || 'Could not add product');
+            toast.error(err.message || 'Could not add product');
         }
     };
 
@@ -105,11 +106,12 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 throw new ApiError(res?.message || 'Failed to remove');
             }
             toast.success('Removed from wishlist');
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as Error;
             // Revert on failure
             setWishlistIds(prev => new Set(prev).add(productId));
             setWishlistCount(prev => prev + 1);
-            toast.error(error.message || 'Could not remove product');
+            toast.error(err.message || 'Could not remove product');
         }
     };
 

@@ -51,8 +51,9 @@ export default function SignUp() {
         } else {
           setApiError(data.message);
         }
-      } catch (err: any) {
-        setApiError(err.message || 'Something went wrong. Please try again.');
+      } catch (err) {
+        const error = err as Error;
+        setApiError(error.message || 'Something went wrong. Please try again.');
       } finally {
         setIsLoading(false);
       }

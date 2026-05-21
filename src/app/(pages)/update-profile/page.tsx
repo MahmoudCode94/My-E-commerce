@@ -33,8 +33,9 @@ export default function UpdateProfile() {
         } else {
           setApiError(data.message);
         }
-      } catch (err: any) {
-        setApiError(err.message || 'Update failed. Try again.');
+      } catch (err) {
+        const error = err as Error;
+        setApiError(error.message || 'Update failed. Try again.');
       } finally {
         setIsLoading(false);
       }

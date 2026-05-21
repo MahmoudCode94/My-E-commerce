@@ -29,6 +29,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [userId, setUserId] = useState('');
     const router = useRouter();
 
+    const handleLogin = useCallback((token: string) => {
+        setCookie('userToken', token, {
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 // 7 days in seconds
+        });
+        window.dispatchEvent(new Event('userLogin'));
+    }, []);
+
+    const handleLogout = useCallback(() => {
+        deleteCookie('userToken');
+        setIsLoggedIn(false);
+        setUserName('');
+        setUserId('');
+        window.dispatchEvent(new Event('userLogin'));
+        router.push('/login');
+    }, [router]);
+
     const checkAuth = useCallback(async () => {
         const token = getCookie('userToken') as string | undefined;
         if (token) {
@@ -53,31 +71,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUserName('');
             setUserId('');
         }
-    }, []);
+    }, [handleLogout]);
 
     useEffect(() => {
-        checkAuth();
+        const initAuth = async () => {
+            await Promise.resolve();
+            checkAuth();
+        };
+        initAuth();
         window.addEventListener('userLogin', checkAuth);
         return () => window.removeEventListener('userLogin', checkAuth);
     }, [checkAuth]);
-
-    const handleLogin = (token: string) => {
-        setCookie('userToken', token, {
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 // 7 days in seconds
-        });
-        window.dispatchEvent(new Event('userLogin'));
-    };
-
-    const handleLogout = () => {
-        deleteCookie('userToken');
-        setIsLoggedIn(false);
-        setUserName('');
-        setUserId('');
-        window.dispatchEvent(new Event('userLogin'));
-        router.push('/login');
-    };
 
     return (
         <AuthContext.Provider value={{ isLoggedIn, userName, userId, login: handleLogin, logout: handleLogout }}>

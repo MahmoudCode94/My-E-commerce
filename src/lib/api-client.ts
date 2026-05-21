@@ -36,8 +36,8 @@ export async function fetchWithRetry(
             }
 
             return response;
-        } catch (error: any) {
-            lastError = error;
+        } catch (error) {
+            lastError = error instanceof Error ? error : new Error(String(error));
 
             if (attempt < retries) {
                 const delay = backoff * Math.pow(2, attempt);

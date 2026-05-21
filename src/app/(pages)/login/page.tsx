@@ -40,8 +40,9 @@ export default function LoginPage() {
         } else {
           setApiError(data.message);
         }
-      } catch (err: any) {
-        setApiError(err.message || 'Authentication failed. Check your connection.');
+      } catch (err) {
+        const error = err as Error;
+        setApiError(error.message || 'Authentication failed. Check your connection.');
       } finally {
         setIsLoading(false);
       }

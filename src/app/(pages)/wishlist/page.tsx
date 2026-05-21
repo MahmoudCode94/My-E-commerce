@@ -18,12 +18,6 @@ export default function WishlistPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // We still need to load the full wishlist details here since Context might only have IDs or simplified data
-  // effectively Context has IDs and count, but maybe not full product details for display?
-  // Let's check WishlistContext. It stores IDs. API returns full data?
-  // getWishlist returns { status, count, data: WishlistItem[] }
-  // So we can use the API to get full data for the page.
-
   async function loadWishlist() {
     try {
       const data = await getWishlist();
@@ -31,7 +25,7 @@ export default function WishlistPage() {
         setProducts(data.data);
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to load wishlist";
+      const message = error instanceof Error ? error.message : 'Failed to load wishlist';
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -42,7 +36,6 @@ export default function WishlistPage() {
     setActionLoading(id);
     try {
       await removeFromWishlistFn(id);
-      // Update local state to remove item immediately from view
       setProducts((prev) => prev.filter((item) => item._id !== id));
     } finally {
       setActionLoading(null);
@@ -76,7 +69,9 @@ export default function WishlistPage() {
         <h1 className="flex items-center gap-3 text-4xl font-black text-slate-900 dark:text-slate-50">
           My Wishlist <span className="text-3xl text-red-500">❤️</span>
         </h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">You have {products.length} items saved for later</p>
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
+          You have {products.length} items saved for later
+        </p>
       </header>
 
       {products.length === 0 ? (
@@ -89,43 +84,71 @@ export default function WishlistPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((item) => (
-            <div key={item._id} className="relative flex flex-col overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 border group border-slate-100 dark:border-slate-800 rounded-3xl hover:shadow-2xl dark:hover:border-slate-700">
-
-              <div className="relative p-6 overflow-hidden aspect-square bg-slate-50 dark:bg-slate-800">
+            <div
+              key={item._id}
+              className="relative flex flex-row md:flex-col gap-0 md:pb-1 overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 border border-transparent shadow-sm group hover:shadow-xl hover:border-slate-200 dark:hover:border-slate-800 rounded-3xl"
+            >
+              {/* Image */}
+              <Link
+                href={`/products/${item._id}`}
+                className="relative w-1/3 shrink-0 md:w-full h-36 md:h-52 bg-transparent rounded-2xl m-3 md:m-0 p-2 overflow-hidden block"
+              >
                 <Image
                   src={item.imageCover}
                   alt={item.title}
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  className="object-contain p-4 transition-transform duration-500 group-hover:scale-110"
-                  priority={false}
+                  sizes="(max-width: 768px) 33vw, (max-width: 1200px) 50vw, 25vw"
+                  className="object-contain transition-transform duration-500 group-hover:scale-110 rounded-2xl"
                 />
-              </div>
+              </Link>
 
-              <div className="flex flex-col p-5 grow">
-                <div className="mb-4">
-                  <h3 className="h-6 mb-1 font-bold text-slate-800 dark:text-slate-100 line-clamp-1">{item.title}</h3>
-                  <p className="text-lg font-black text-emerald-600">{item.price} EGP</p>
+              {/* Content */}
+              <div className="flex flex-col flex-1 px-4 py-4 md:p-0 md:justify-between min-w-0">
+                {/* Text */}
+                <div className="space-y-1 md:px-4 md:pt-2">
+                  <Link href={`/products/${item._id}`}>
+                    <h3 className="text-sm font-bold leading-tight line-clamp-2 md:line-clamp-1 text-slate-800 dark:text-slate-100">
+                      {item.title}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <p className="text-lg font-bold text-emerald-700 dark:text-emerald-500">
+                      {item.price} <span className="text-[10px]">EGP</span>
+                    </p>
+                    <div className="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full border border-yellow-100 dark:border-yellow-900/30">
+                      <span className="text-xs text-yellow-500">★</span>
+                      <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                        {item.ratingsAverage}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex gap-2 mt-auto">
+                {/* Actions */}
+                <div className="flex items-center gap-2 mt-auto pt-3 pb-1 md:px-3 md:pb-3">
                   <button
                     disabled={actionLoading === item._id}
                     onClick={() => handleAddToCart(item._id)}
-                    className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-white transition-colors flex-3 bg-slate-900 dark:bg-emerald-600 rounded-2xl hover:bg-emerald-600 dark:hover:bg-emerald-700 disabled:opacity-50"
+                    className="flex items-center justify-center gap-1.5 flex-1 bg-slate-950 dark:bg-emerald-600 text-white py-2.5 rounded-xl transition-all duration-300 hover:bg-emerald-600 dark:hover:bg-emerald-700 active:scale-95 shadow-sm font-bold text-xs uppercase disabled:opacity-70"
                   >
-                    {actionLoading === item._id ? <Loader2 size={16} className="animate-spin" /> : <ShoppingCart size={16} />}
-                    Add to Cart
+                    {actionLoading === item._id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <ShoppingCart size={14} />
+                        Add to Cart
+                      </>
+                    )}
                   </button>
 
                   <button
                     disabled={actionLoading === item._id}
                     onClick={() => handleRemove(item._id)}
-                    className="flex items-center justify-center flex-1 py-3 text-red-500 transition-all bg-red-50 dark:bg-red-900/20 rounded-2xl hover:bg-red-500 hover:text-white disabled:opacity-50"
+                    className="flex items-center justify-center p-2.5 shrink-0 text-red-500 transition-all bg-red-50 dark:bg-red-900/20 rounded-xl hover:bg-red-500 hover:text-white disabled:opacity-50"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>

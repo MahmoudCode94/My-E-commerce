@@ -83,6 +83,13 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
         }
       }
       loadData();
+      setEmail("");
+      setShippingAddress({
+        details: "",
+        phone: "",
+        city: "",
+        name: "",
+      });
     }
   }, [isOpen]);
 
@@ -269,19 +276,40 @@ export default function CheckoutModal({ cartId, isOpen, onClose }: Props) {
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3 text-left">
-                    <input placeholder="Label (e.g. Home)" className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })} />
-                    <input placeholder="City" className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })} />
-                    <input placeholder="Phone" className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })} />
-                    <textarea placeholder="Street, Building..." rows={2} className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" onChange={(e) => setShippingAddress({ ...shippingAddress, details: e.target.value })} />
+                   <div className="space-y-3 text-left">
+                    <input 
+                      placeholder="Label (e.g. Home)" 
+                      value={shippingAddress.name || ""} 
+                      className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" 
+                      onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })} 
+                    />
+                    <input 
+                      placeholder="City" 
+                      value={shippingAddress.city || ""} 
+                      className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" 
+                      onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })} 
+                    />
+                    <input 
+                      placeholder="Phone" 
+                      value={shippingAddress.phone || ""} 
+                      className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" 
+                      onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })} 
+                    />
+                    <textarea 
+                      placeholder="Street, Building..." 
+                      value={shippingAddress.details || ""} 
+                      rows={2} 
+                      className="w-full p-4 border outline-none bg-slate-50 dark:bg-slate-800 dark:text-white rounded-2xl focus:ring-2 focus:ring-emerald-500 border-slate-100 dark:border-slate-700" 
+                      onChange={(e) => setShippingAddress({ ...shippingAddress, details: e.target.value })} 
+                    />
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4 pt-4">
-                  <button disabled={loading} onClick={() => handleOrder("cash")} className="flex items-center justify-center gap-2 py-4 font-bold text-white transition-all bg-slate-800 hover:bg-slate-900 rounded-2xl disabled:bg-slate-300">
+                  <button disabled={loading} onClick={() => handleOrder("cash")} className="flex items-center justify-center gap-2 py-4 font-bold text-white transition-all bg-slate-900 dark:bg-slate-800 hover:bg-slate-950 dark:hover:bg-slate-700 rounded-2xl disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:opacity-50">
                     {loading ? <Loader2 className="animate-spin" size={18} /> : <><Banknote size={18} /> Cash</>}
                   </button>
-                  <button disabled={loading} onClick={() => handleOrder("online")} className="flex items-center justify-center gap-2 py-4 font-bold text-white transition-all bg-emerald-600 hover:bg-emerald-700 rounded-2xl disabled:bg-slate-300">
+                  <button disabled={loading} onClick={() => handleOrder("online")} className="flex items-center justify-center gap-2 py-4 font-bold text-white transition-all bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-400 rounded-2xl disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:opacity-50">
                     {loading ? <Loader2 className="animate-spin" size={18} /> : <><CreditCard size={18} /> Visa</>}
                   </button>
                 </div>

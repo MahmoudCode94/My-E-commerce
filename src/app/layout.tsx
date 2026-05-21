@@ -5,6 +5,7 @@ import Footer from "./_components/Footer/Footer";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { Providers } from "./providers";
 import Navbar from "./_components/Navbar/Navbar";
+import CartDrawer from "./_components/CartDrawer/CartDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://ecommerce.routemisr.com" />
         <link rel="dns-prefetch" href="https://ecommerce.routemisr.com" />
@@ -37,6 +38,7 @@ export default function RootLayout({
       >
         <Providers>
           <Navbar />
+          <CartDrawer />
           {children}
           <Footer />
         </Providers>

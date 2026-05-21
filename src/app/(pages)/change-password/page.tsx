@@ -37,7 +37,7 @@ export default function ChangePassword() {
           setApiError(data.statusMsg || data.message || 'Verification failed');
           setIsLoading(false);
         }
-      } catch (error) {
+      } catch {
         setApiError('An unexpected error occurred');
         setIsLoading(false);
       }

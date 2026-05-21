@@ -6,7 +6,8 @@ import { getSpecificBrand, Brand } from '@/api/brands.api';
 import ProductCard from '@/app/_components/ProductCard/ProductCard';
 import { Product, getProducts } from '@/api/products.api';
 import Image from 'next/image';
-import { Loader2, Award } from 'lucide-react';
+import { Award } from 'lucide-react';
+import { BrandOrCategorySkeleton } from '@/app/_components/Skeleton';
 
 interface BrandInProduct {
     _id: string;
@@ -57,11 +58,7 @@ export default function BrandDetailsPage() {
         loadBrandData();
     }, [loadBrandData]);
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-950">
-            <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
-        </div>
-    );
+    if (isLoading) return <BrandOrCategorySkeleton />;
 
     return (
         <div className="min-h-screen pb-20 bg-slate-50 dark:bg-slate-950">

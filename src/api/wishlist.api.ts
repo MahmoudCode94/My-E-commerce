@@ -52,7 +52,7 @@ export const getWishlist = async (): Promise<WishlistResponse> => {
       method: 'GET',
       cache: 'no-store'
     });
-  } catch (error) {
+  } catch {
     return { status: "error", data: [] };
   }
 };
@@ -63,8 +63,9 @@ export async function addToWishlist(productId: string): Promise<WishlistResponse
       method: 'POST',
       body: JSON.stringify({ productId })
     });
-  } catch (error: any) {
-    return { status: "error", data: [], message: error.message };
+  } catch (error) {
+    const err = error as Error;
+    return { status: "error", data: [], message: err.message };
   }
 }
 
@@ -73,7 +74,8 @@ export async function removeFromWishlist(productId: string): Promise<WishlistRes
     return await wishlistRequest(`${baseUrl}/${productId}`, {
       method: 'DELETE'
     });
-  } catch (error: any) {
-    return { status: "error", data: [], message: error.message };
+  } catch (error) {
+    const err = error as Error;
+    return { status: "error", data: [], message: err.message };
   }
 }

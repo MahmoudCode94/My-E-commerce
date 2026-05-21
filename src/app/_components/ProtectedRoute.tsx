@@ -20,7 +20,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
           deleteCookie('userToken');
           router.push('/login');
         }
-      } catch (err) {
+      } catch {
         deleteCookie('userToken');
         router.push('/login');
       }

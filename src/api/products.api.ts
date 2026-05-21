@@ -62,7 +62,7 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
         );
         const res = await response.json();
         return res.data || [];
-    } catch (error) {
+    } catch {
         return [];
     }
 }
@@ -77,7 +77,7 @@ export async function getSpecificProduct(id: string): Promise<Product | null> {
 
         const res = await response.json();
         return res.data;
-    } catch (error) {
+    } catch {
         return null;
     }
 }

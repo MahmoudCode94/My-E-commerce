@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCategories, Category } from '@/api/category.api';
+import { Category } from '@/api/category.api';
 
 import 'swiper/css';
 

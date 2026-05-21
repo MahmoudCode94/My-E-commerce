@@ -1,4 +1,3 @@
-import { getCookie } from 'cookies-next';
 import { fetchWithRetry } from "@/lib/api-client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;

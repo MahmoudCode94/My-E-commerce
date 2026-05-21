@@ -3,12 +3,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Loader2, ShoppingBag, Filter } from 'lucide-react';
+import { ShoppingBag, Filter } from 'lucide-react';
 
 import { getSpecificCategory, Category } from '@/api/category.api';
 import { getProductsByCategory, Product, SubCategory } from '@/api/products.api';
 
 import ProductCard from '@/app/_components/ProductCard/ProductCard';
+import { BrandOrCategorySkeleton } from '@/app/_components/Skeleton';
 
 export default function CategoryDetailsPage() {
     const { id } = useParams();
@@ -71,11 +72,7 @@ export default function CategoryDetailsPage() {
         }
     };
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-950">
-            <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
-        </div>
-    );
+    if (isLoading) return <BrandOrCategorySkeleton />;
 
     const { category, filteredProducts, subCategories } = pageData;
 

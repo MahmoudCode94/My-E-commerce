@@ -6,6 +6,12 @@ export interface CartProduct {
     _id: string;
     title: string;
     imageCover: string;
+    category?: {
+        name: string;
+        _id?: string;
+        slug?: string;
+        image?: string;
+    };
 }
 
 export interface CartItem {

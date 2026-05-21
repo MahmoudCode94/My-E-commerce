@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import { Loader2, Heart } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 export default function AddWishlistButton({ productId }: { productId: string }) {
   const { checkIsInWishlist, addToWishlistFn, removeFromWishlistFn } = useWishlist();
@@ -28,10 +28,12 @@ export default function AddWishlistButton({ productId }: { productId: string }) 
   }
 
   return (
-    <button
+    <motion.button
       onClick={handleWishlistToggle}
-      disabled={isWishlisting}
-      className={`z-10 flex items-center justify-center p-4 transition-all scale-110 border rounded-full shadow-sm backdrop-blur-md hover:scale-125 active:scale-95 disabled:opacity-50
+      animate={isInWishlist ? { scale: 1.2 } : { scale: 1 }}
+      transition={{ duration: 0.25, type: "tween" }}
+      whileTap={{ scale: 0.9 }}
+      className={`z-10 flex items-center justify-center p-4 border rounded-full shadow-sm backdrop-blur-md disabled:opacity-50 transition-colors
         ${isInWishlist
           ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/30'
           : 'bg-white/70 dark:bg-slate-900/70 border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800'
@@ -50,6 +52,6 @@ export default function AddWishlistButton({ productId }: { productId: string }) 
           `}
         />
       )}
-    </button>
+    </motion.button>
   );
 }

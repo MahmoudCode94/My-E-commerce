@@ -1,4 +1,3 @@
-import { getCookie } from 'cookies-next';
 
 import { fetchWithRetry } from "@/lib/api-client";
 
